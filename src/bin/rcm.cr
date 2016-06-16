@@ -20,10 +20,12 @@ class Rcm::Main
 
     Commands:
       nodes               Print nodes information
+      meet <host> <port>  Join the cluster on <host>:<port>
       replicate <master>  Configure node as replica of the <master>
 
     Example:
       #{$0}     nodes
+      #{$0}     meet 127.0.0.1 7001
       #{$0}     replicate 2afb4d
     EOF
 
@@ -40,12 +42,17 @@ class Rcm::Main
     when "nodes"
       show_nodes
       
+    when "meet"
+      host = args.shift { die "meet expects <host> <port>" }
+      port = args.shift { die "meet expects <host> <port>" }
+      puts "MEET #{host} #{port}"
+      puts redis.meet(host, port)
+      
     when "replicate"
       name = args.shift { die "replicate expects <master>" }
       node = redis.find_node_by(name)
-      ret = redis.replicate(node)
-      print "REPLICATE #{node.addr} => "
-      puts ret
+      puts "REPLICATE #{node.addr}"
+      puts redis.replicate(node)
 
     else
       die "unknown command: #{op}"
