@@ -1,15 +1,11 @@
-module Rcm
-  module Commands
-    def nodes
-      string_command(["CLUSTER", "NODES"])
-    end
-    
-    def meet(host : String, port : String)
-      string_command(["CLUSTER", "MEET", host, port])
-    end
+module Rcm::Commands
+  abstract def redis(key : String) : Redis
 
-    def replicate(node : NodeInfo)
-      string_command(["CLUSTER", "REPLICATE", node.sha1])
-    end
+  def get(key)
+    redis(key).get(key)
+  end
+  
+  def set(key, val)
+    redis(key).set(key, val)
   end
 end

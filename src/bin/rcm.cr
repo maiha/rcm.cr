@@ -18,16 +18,16 @@ class Rcm::Main
     Options:
 
     Commands:
-      nodes               Print nodes information
-      meet <host> <port>  Join the cluster on <host>:<port>
+      nodes (file)        Print nodes info from file or server
+      meet <master>       Join the cluster on <master>
       replicate <master>  Configure node as replica of the <master>
-      pretty_nodes        Same as `nodes` except this reads from stdin (offline mode)
+      import <tsv file>   Test data import from tsv file
 
     Example:
-      #{$0}     nodes
-      #{$0}     meet 127.0.0.1 7001
-      #{$0}     replicate 2afb4d
-      redis-cli cluster nodes | #{$0} pretty_nodes
+      #{$0} nodes
+      #{$0} meet 127.0.0.1:7001       # or shortly "meet :7001"
+      #{$0} replicate 127.0.0.1:7001  # or shortly "replicate :7001"
+      #{$0} import foo.tsv
     EOF
 
   def run
@@ -41,27 +41,30 @@ class Rcm::Main
 
     case op
     when "nodes"
-      cluster = ClusterInfo.new(Array(NodeInfo).parse(redis.nodes))
-      Rcm::Cluster::ShowNodes.new(cluster).show
-
-    when "pretty_nodes"
-      nodes_str = expect_error(Errno) { ARGF.gets_to_end }
-      cluster = ClusterInfo.new(Array(NodeInfo).parse(nodes_str))
-      Rcm::Cluster::ShowNodes.new(cluster).show
+      info = ClusterInfo.parse(args.any? ? safe{ ARGF.gets_to_end } : redis.nodes)
+      Cluster::ShowNodes.new(info).show
 
     when "meet"
-      host = args.shift { die "meet expects <host> <port>" }
-      port = args.shift { die "meet expects <host> <port>" }
-      puts "MEET #{host} #{port}"
-      puts redis.meet(host, port)
+      name = args.shift { die "meet expects <master>" }
+      info = ClusterInfo.parse(redis.nodes)
+      node = info.find_node_by(name)
+      puts "MEET #{node.host} #{node.port}"
+      puts redis.meet(node.host, node.port.to_s)
       
     when "replicate"
       name = args.shift { die "replicate expects <master>" }
-      info = ClusterInfo.new(Array(NodeInfo).parse(redis.nodes))
+      info = ClusterInfo.parse(redis.nodes)
       node = info.find_node_by(name)
       puts "REPLICATE #{node.addr}"
-      puts redis.replicate(node)
+      puts redis.replicate(node.sha1)
 
+    when "import"
+      name = args.shift { die "import expects <tsv-file>" }
+      file = safe{ File.open(name) }
+      info = ClusterInfo.parse(redis.nodes)
+      step = Cluster::StepImport.new(Client.new(info, pass))
+      step.import(file, delimiter: "\t", progress: true, count: 1000)
+      
     else
       die "unknown command: #{op}"
     end
@@ -74,9 +77,17 @@ class Rcm::Main
   end
 
   private def redis
-    @redis ||= Rcm::Client.new(host, port, pass)
+    @redis ||= Redis.new(host, port, pass)
   end
 
+  macro safe(klass)
+    expect_error({{klass.id}}) { {{yield}} }
+  end
+  
+  macro safe
+    expect_error(Exception) { {{yield}} }
+  end
+  
   private def suggest_for_error(err)
     case err.to_s
     when /NOAUTH Authentication required/

@@ -1,6 +1,6 @@
 macro val(s)
   def {{s.target}}
-    @{{s.target.stringify.gsub(/\?$/, "_p").id}} ||= {{s.value}}
+    @{{s.target.stringify.gsub(/\?$/, "_p").id}} ||= ({{s.value}})
   end
 end
 
