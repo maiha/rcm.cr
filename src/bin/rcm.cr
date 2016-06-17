@@ -4,8 +4,6 @@ require "colorize"
 
 class Rcm::Main
   include Options
-  include Show::Nodes
-  include Rcm::Helper
 
   option host  : String, "-h <hostname>", "Server hostname", "127.0.0.1"
   option port  : Int32 , "-p <port>", "Server port", 6379
@@ -43,8 +41,14 @@ class Rcm::Main
 
     case op
     when "nodes"
-      do_nodes
-      
+      cluster = ClusterInfo.new(Array(NodeInfo).parse(redis.nodes))
+      Rcm::Cluster::ShowNodes.new(cluster).show
+
+    when "pretty_nodes"
+      nodes_str = expect_error(Errno) { ARGF.gets_to_end }
+      cluster = ClusterInfo.new(Array(NodeInfo).parse(nodes_str))
+      Rcm::Cluster::ShowNodes.new(cluster).show
+
     when "meet"
       host = args.shift { die "meet expects <host> <port>" }
       port = args.shift { die "meet expects <host> <port>" }
@@ -53,17 +57,11 @@ class Rcm::Main
       
     when "replicate"
       name = args.shift { die "replicate expects <master>" }
-      node = find_node_by(name, Array(NodeInfo).parse(redis.nodes))
+      info = ClusterInfo.new(Array(NodeInfo).parse(redis.nodes))
+      node = info.find_node_by(name)
       puts "REPLICATE #{node.addr}"
       puts redis.replicate(node)
 
-    when "pretty_nodes"
-      begin
-        do_pretty_nodes(ARGF.gets_to_end)
-      rescue err : Errno
-        die(err.to_s)
-      end
-      
     else
       die "unknown command: #{op}"
     end
@@ -88,5 +86,3 @@ class Rcm::Main
 end
 
 Rcm::Main.new.run
-
-
