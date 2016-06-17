@@ -2,6 +2,8 @@
 
 Redis Cluster Manager in Crystal
 
+- (still in beta stage)
+
 ## Usage
 
 #### nodes

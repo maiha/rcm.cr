@@ -13,10 +13,13 @@ record Rcm::NodeInfo,
   def_equals_and_hash sha1
   
   val addr    = "#{host}:#{port}"
-  val online? = !! status["connected"]?
   val master? = !! flags["master"]?
   val slave?  = !! flags["slave"]?
+  val fail?   = !! flags["fail"]?
 
+  val connected?    = status.split(",").includes?("connected")
+  val disconnected? = !! status["disconnected"]?
+                   
   def sha1_6
     "#{sha1}??????"[0..5]
   end
