@@ -7,6 +7,14 @@ module Options
 
   @args : Array(String)?
 
+  macro expect_error(klass)
+    begin
+      {{yield}}
+    rescue err : {{klass.id}}
+      die err.to_s
+    end
+  end
+            
   macro def args : Array(String)
     begin
       @args ||= option_parser.parse(ARGV)
