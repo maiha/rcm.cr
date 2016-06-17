@@ -19,7 +19,7 @@ record Rcm::NodeInfo,
 
   val connected?    = status.split(",").includes?("connected")
   val disconnected? = !! status["disconnected"]?
-                   
+
   def sha1_6
     "#{sha1}??????"[0..5]
   end

@@ -40,6 +40,15 @@ b80784 [127.0.0.1:7008]   master(*)
 % cp bin/rcm ~/bin/
 ```
 
+## TODO
+
+- [ ] Dryrun
+- [ ] Check
+  - [ ] Nodes health check
+  - [ ] Slots coverage check
+- [ ] Debug
+  - [ ] Slots filler
+
 ## Contributing
 
 1. Fork it ( https://github.com/maiha/rcm.cr/fork )

@@ -1,10 +1,12 @@
 module Rcm
   module Show::Nodes
+    abstract def redis : Connection
+
     private def build_slave_deps(nodes) : Hash(NodeInfo, Array(NodeInfo))
       slaves = {} of NodeInfo => Array(NodeInfo)
       nodes.each do |node|
         if node.slave? && !node.master.empty?
-          master = redis.find_node_by(node.master)
+          master = find_node_by(node.master, nodes)
           slaves[master] ||= [] of NodeInfo
           slaves[master] << node
         end
@@ -26,9 +28,12 @@ module Rcm
       addr = "[#{node.addr}]"
       alen = nodes.map(&.addr.size).max
 
+      info = node.slot
+      info = "(slave of #{master_addr(node, nodes)})" if node.slave?
+      
       print "%s %-#{alen+4}s " % [node.sha1_6, addr]
-      buf = "%6s%-5s %s" % [role, "(#{mark})", node.slot]
-            
+      buf = "%6s%-5s %s" % [role, "(#{mark})", info]
+
       if node.fail?
         puts "#{buf}".colorize.red
       elsif node.disconnected?
@@ -37,8 +42,7 @@ module Rcm
         puts "#{buf}".colorize.green
         slaves[node]?.try(&.each{|slave| show_node(nodes, slave, slaves, shown)})
       elsif node.slave?
-        master = redis.find_node_by(node.master).addr rescue node.sha1_6
-        puts "#{buf}(slave of #{master})".colorize.cyan
+        puts "#{buf}".colorize.cyan
       elsif node.master?
         puts "#{buf}"
       else
@@ -46,9 +50,13 @@ module Rcm
       end
       shown.add(node)
     end
-    
-    protected def show_nodes
-      nodes  = redis.nodes
+
+    protected def do_nodes
+      do_pretty_nodes(redis.nodes)
+    end    
+
+    protected def do_pretty_nodes(buf : String)
+      nodes  = Array(NodeInfo).parse(buf)
       slaves = build_slave_deps(nodes)
       shown  = Set(NodeInfo).new
 

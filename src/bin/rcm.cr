@@ -5,6 +5,7 @@ require "colorize"
 class Rcm::Main
   include Options
   include Show::Nodes
+  include Rcm::Helper
 
   option host  : String, "-h <hostname>", "Server hostname", "127.0.0.1"
   option port  : Int32 , "-p <port>", "Server port", 6379
@@ -22,11 +23,13 @@ class Rcm::Main
       nodes               Print nodes information
       meet <host> <port>  Join the cluster on <host>:<port>
       replicate <master>  Configure node as replica of the <master>
+      pretty_nodes        Same as `nodes` except this reads from stdin (offline mode)
 
     Example:
       #{$0}     nodes
       #{$0}     meet 127.0.0.1 7001
       #{$0}     replicate 2afb4d
+      redis-cli cluster nodes | #{$0} pretty_nodes
     EOF
 
   def run
@@ -40,7 +43,7 @@ class Rcm::Main
 
     case op
     when "nodes"
-      show_nodes
+      do_nodes
       
     when "meet"
       host = args.shift { die "meet expects <host> <port>" }
@@ -50,10 +53,17 @@ class Rcm::Main
       
     when "replicate"
       name = args.shift { die "replicate expects <master>" }
-      node = redis.find_node_by(name)
+      node = find_node_by(name, Array(NodeInfo).parse(redis.nodes))
       puts "REPLICATE #{node.addr}"
       puts redis.replicate(node)
 
+    when "pretty_nodes"
+      begin
+        do_pretty_nodes(ARGF.gets_to_end)
+      rescue err : Errno
+        die(err.to_s)
+      end
+      
     else
       die "unknown command: #{op}"
     end
