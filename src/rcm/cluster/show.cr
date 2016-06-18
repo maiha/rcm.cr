@@ -6,7 +6,7 @@ module Rcm::Cluster
     end
 
     def show
-      do_pretty_nodes
+      show_nodes
     end
     
     private def show_node(node, slaves, shown)
@@ -40,16 +40,16 @@ module Rcm::Cluster
       shown.add(node)
     end
 
-    protected def do_pretty_nodes
+    protected def show_nodes
       slaves = slave_deps
       shown  = Set(NodeInfo).new
 
-      # first, render masters
-      slaves.keys.sort_by(&.addr).each do |node|
+      # first, render masters where slot exists
+      nodes.select(&.slot?).sort_by(&.slot_range.first).each do |node|
         show_node(node, slaves, shown)
       end
 
-      # render all nodes (dup is skipped by shown cache)
+      # then, render all nodes (dup is skipped by shown cache)
       nodes.each do |node|
         show_node(node, slaves, shown)
       end

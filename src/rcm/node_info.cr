@@ -32,6 +32,17 @@ record Rcm::NodeInfo,
     !slot.empty?
   end
 
+  def slot_range
+    case slot
+    when /\A(\d+)\Z/
+      ($1.to_i .. $1.to_i)
+    when /\A(\d+)-(\d+)\Z/
+      ($1.to_i .. $2.to_i)
+    else
+      raise "[BUG] #{addr} has no slot_range: '#{slot}'"
+    end
+  end
+  
   def to_s(io : IO)
     io << "[%s] (%s) %6s" % [sha1_6, addr, role]
   end
