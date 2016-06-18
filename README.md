@@ -10,28 +10,28 @@ Redis Cluster Manager in Crystal
 
 ```shell
 % rcm -p 7001 nodes
-2afb4d [127.0.0.1:7001]   master(*)   0-5460
-56f195 [127.0.0.1:7004]     +slave(*)   (connected 127.0.0.1:7001)
-7fc615 [127.0.0.1:7007]     +slave(*)   (connected 127.0.0.1:7001)
+7fc615 [127.0.0.1:7007]   master(*)   0-5460
+2afb4d [127.0.0.1:7001]     +slave(*)   (slave of 127.0.0.1:7007)
 7f193d [127.0.0.1:7002]   master(*)   5461-10922
-51fba7 [127.0.0.1:7005]     +slave(*)   (connected 127.0.0.1:7002)
+51fba7 [127.0.0.1:7005]     +slave(*)   (slave of 127.0.0.1:7002)
 053dd7 [127.0.0.1:7003]   master(*)   10923-16383
-1c8f39 [127.0.0.1:7006]     +slave(*)   (connected 127.0.0.1:7003)
+1c8f39 [127.0.0.1:7006]     +slave(*)   (slave of 127.0.0.1:7003)
+56f195 [127.0.0.1:7004]     +slave(!)   (slave of 127.0.0.1:7001)
 b80784 [127.0.0.1:7008]   master(*)
 6644fc [127.0.0.1:7009]   master(*)
 ```
 
-#### meet
+#### become slave
+
+- `meet` and `replicate` (make 7004 slaveof 7001)
 
 ```shell
-% rcm -p 7002 meet 127.0.0.1 7001
+% rcm -p 7004 meet 127.0.0.1:7001       # same as "meet :7001"
+% rcm -p 7004 replicate 127.0.0.1:7001  # same as "replicate :7001"
 ```
 
-#### replicate
+#### import
 
-```shell
-% rcm -p 7004 replicate 2afb4d
-```
 
 ## Installation
 
