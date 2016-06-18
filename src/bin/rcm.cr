@@ -42,7 +42,7 @@ class Rcm::Main
     case op
     when "nodes"
       info = ClusterInfo.parse(args.any? ? safe{ ARGF.gets_to_end } : redis.nodes)
-      Cluster::ShowNodes.new(info).show
+      Cluster::ShowNodes.new(Client.new(info, pass)).show(STDOUT, count: true)
 
     when "meet"
       name = args.shift { die "meet expects <master>" }
