@@ -1,13 +1,15 @@
 require "./commands"
 
 class Rcm::Client
-  property info, node2redis
+  property cluster_info, node2redis
+  delegate nodes, to: @cluster_info
   
-  def initialize(@info : ClusterInfo, @password : String? = nil)
-    @slot2nodes = @info.slot2nodes.as(Hash(UInt16, NodeInfo))
+  def initialize(@cluster_info : ClusterInfo, @password : String? = nil)
+    @slot2nodes = @cluster_info.slot2nodes.as(Hash(UInt16, NodeInfo))
     @node2redis = Hash(NodeInfo, Redis).new
   end
 
+  include Enumerable(Redis)     # for all redis connections
   include Rcm::Commands
 
   def redis(node : NodeInfo)
@@ -20,10 +22,9 @@ class Rcm::Client
     redis(node)
   end
 
-  def counts
-    @info.nodes.reduce(Hash(NodeInfo, Int64).new) do |h, n|
-      h[n] = redis(n).count
-      h
+  def each
+    @cluster_info.nodes.each do |n|
+      yield redis(n)
     end
   end
   

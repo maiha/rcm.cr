@@ -1,6 +1,7 @@
 module Rcm::Cluster
   class ShowNodes
-    delegate nodes, slave_deps, master_addr, to: @client.info
+    delegate cluster_info, to: @client
+    delegate nodes, slave_deps, master_addr, to: cluster_info
 
     def initialize(@client : Client)
     end
@@ -28,7 +29,7 @@ module Rcm::Cluster
       cnt  = counts.fetch(node) { "?" }
       clen = counts.values.map(&.to_s.size).max? || 1
 
-      head =  "%s %-#{alen}s(%#{clen}s)  " % [node.sha1_6, addr, cnt]
+      head = "%s %-#{alen}s(%#{clen}s)  " % [node.sha1_6, addr, cnt]
       body = "%6s%-5s %s" % [role, "(#{mark})", info]
 
       # colorize down node as RED where cnt == -1
