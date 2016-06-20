@@ -57,7 +57,7 @@ module Rcm
       Hash(Int32, NodeInfo).new.tap {|hash|
         nodes.each do |node|
           next unless node.master? && node.slot?
-          node.slot_range.each do |slot|
+          node.slot.each do |slot|
             hash[slot] = node
           end
         end

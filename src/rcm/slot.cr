@@ -13,10 +13,13 @@ module Rcm
     end
 
     def self.parse(str : String) : Slot
+      str = str.strip
       delimiter = /[,\s]+/
-      case str.strip
+      case str
+      when ""
+        return Slot.new(str, Set(Int32).new)
       when delimiter
-        names = str.strip.split(delimiter).map(&.strip)
+        names = str.split(delimiter).map(&.strip)
         slots = names.map{|s| parse(s).as(Slot) }
         name  = names.join(",")
         value = slots.reduce(Set(Int32).new) {|a,s| a.merge(s.set); a}
@@ -34,7 +37,7 @@ module Rcm
       end
     end
 
-    delegate size, empty?, to: set
+    delegate each, size, empty?, to: set
     
     def slots
       set.to_a

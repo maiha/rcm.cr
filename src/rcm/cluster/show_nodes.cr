@@ -58,7 +58,7 @@ module Rcm::Cluster
       shown  = Set(NodeInfo).new
 
       # first, render masters where slot exists
-      nodes.select(&.slot?).sort_by(&.slot_range.first).each do |node|
+      nodes.select(&.slot?).sort_by(&.first_slot).each do |node|
         show_node(io, node, slaves, shown, counts)
       end
 

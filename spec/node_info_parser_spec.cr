@@ -9,7 +9,14 @@ describe Rcm::NodeInfo do
       node.sha1.should eq("5ac5361")
       node.host.should eq("127.0.0.1")
       node.port.should eq(7001)
-      node.slot.should eq("0-9999")
+      node.slot.to_s.should eq("0-9999")
+    end
+
+    it "should accept multiple keyslots" do
+      node = Rcm::NodeInfo.parse <<-EOF
+        5ac5361 127.0.0.1:7001 myself,master - 0 0 0 connected 5 8 10-15
+      EOF
+      node.slot.to_s.should eq("5,8,10-15")
     end
 
     it "should treat a empty host as 127.0.0.1" do
