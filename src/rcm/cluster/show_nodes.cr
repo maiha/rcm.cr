@@ -1,7 +1,7 @@
 module Rcm::Cluster
   class ShowNodes
     delegate cluster_info, to: @client
-    delegate nodes, slave_deps, master_addr, to: cluster_info
+    delegate nodes, slave_deps, master_addr, open_slots, to: cluster_info
 
     def initialize(@client : Client)
     end
@@ -53,6 +53,23 @@ module Rcm::Cluster
       shown.add(node)
     end
 
+    private def show_slots_coverage(io : IO)
+      open = open_slots
+      if open.empty?
+        # [OK] All 16384 slots covered.
+        io.puts "[OK] All 16384 slots covered.".colorize.green
+      else
+        # [ERR] Not all 16384 slots are covered by nodes.
+        cold = 16384 - open.size
+        pct  = cold * 100.0 / 16384
+        rate = "%.1f" % pct
+        rate = "99.9" if rate == "100.0" && open.size > 0
+        info = open[0..3].join(",") + ((open.size > 3) ? ",..." : "")
+        mes  = "[ERR] %s%%(%d/16384) slots are covered. (open slots: %s)" % [rate, cold, info]
+        io.puts mes.colorize.red
+      end
+    end
+
     protected def show_nodes(io : IO, counts)
       slaves = slave_deps
       shown  = Set(NodeInfo).new
@@ -66,6 +83,9 @@ module Rcm::Cluster
       nodes.each do |node|
         show_node(io, node, slaves, shown, counts)
       end
+
+      # finally, render slots coverage
+      show_slots_coverage(io)
     end
   end
 end
