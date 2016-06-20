@@ -1,0 +1,100 @@
+# Server
+redis_version:3.2.0
+redis_git_sha1:00000000
+redis_git_dirty:0
+redis_build_id:5382f69a4e75566b
+redis_mode:cluster
+os:Linux 4.4.0-22-generic x86_64
+arch_bits:64
+multiplexing_api:epoll
+gcc_version:4.9.2
+process_id:1
+run_id:b1d872f33e0de515576b2d89198028b4f25e87f7
+tcp_port:7001
+uptime_in_seconds:50289
+uptime_in_days:0
+hz:10
+lru_clock:6656524
+executable:/data/redis-server
+config_file:/data/conf/redis.conf
+
+# Clients
+connected_clients:1
+client_longest_output_list:0
+client_biggest_input_buf:0
+blocked_clients:0
+
+# Memory
+used_memory:2696416
+used_memory_human:2.57M
+used_memory_rss:13750272
+used_memory_rss_human:13.11M
+used_memory_peak:3744112
+used_memory_peak_human:3.57M
+total_system_memory:11867078656
+total_system_memory_human:11.05G
+used_memory_lua:37888
+used_memory_lua_human:37.00K
+maxmemory:524288000
+maxmemory_human:500.00M
+maxmemory_policy:noeviction
+mem_fragmentation_ratio:5.10
+mem_allocator:jemalloc-4.0.3
+
+# Persistence
+loading:0
+rdb_changes_since_last_save:0
+rdb_bgsave_in_progress:0
+rdb_last_save_time:1466258902
+rdb_last_bgsave_status:ok
+rdb_last_bgsave_time_sec:0
+rdb_current_bgsave_time_sec:-1
+aof_enabled:0
+aof_rewrite_in_progress:0
+aof_rewrite_scheduled:0
+aof_last_rewrite_time_sec:-1
+aof_current_rewrite_time_sec:-1
+aof_last_bgrewrite_status:ok
+aof_last_write_status:ok
+
+# Stats
+total_connections_received:87
+total_commands_processed:56240
+instantaneous_ops_per_sec:0
+total_net_input_bytes:1862608
+total_net_output_bytes:536020
+instantaneous_input_kbps:0.00
+instantaneous_output_kbps:0.00
+rejected_connections:0
+sync_full:3
+sync_partial_ok:0
+sync_partial_err:0
+expired_keys:0
+evicted_keys:0
+keyspace_hits:0
+keyspace_misses:0
+pubsub_channels:0
+pubsub_patterns:0
+latest_fork_usec:1337
+migrate_cached_sockets:0
+
+# Replication
+role:master
+connected_slaves:0
+master_repl_offset:13553
+repl_backlog_active:0
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:2
+repl_backlog_histlen:13552
+
+# CPU
+used_cpu_sys:144.04
+used_cpu_user:1.52
+used_cpu_sys_children:0.01
+used_cpu_user_children:0.02
+
+# Cluster
+cluster_enabled:1
+
+# Keyspace
+db0:keys=10000,expires=0,avg_ttl=0
