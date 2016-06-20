@@ -23,7 +23,8 @@ class Rcm::Main
       addslots <slots>    Add slots to the node
       meet <master>       Join the cluster on <master>
       replicate <master>  Configure node as replica of the <master>
-      get <key>           Get specified data from cluster
+      get <key>           Get specified data from the cluster
+      set <key> <val>     Set specified data to the cluster
       import <tsv file>   Test data import from tsv file
 
     Example:
@@ -75,6 +76,11 @@ class Rcm::Main
       key = args.shift { die "get expects <key>" }
       val = client.get(key)
       puts val.nil? ? "(nil)" : val.inspect
+
+    when "set"
+      key = args.shift { die "set expects <key> <val>" }
+      val = args.shift { die "get expects <key> <val>" }
+      client.set(key, val)
 
     when "import"
       name = args.shift { die "import expects <tsv-file>" }
