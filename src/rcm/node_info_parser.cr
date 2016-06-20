@@ -21,7 +21,7 @@ struct Rcm::NodeInfo
     recv   = shift.call
     epoch  = shift.call
     status = shift.call
-    slot   = ary.shift { "" }
+    slot   = Rcm::Slot.parse(ary.join(","))
 
     addr = Rcm::Addr.parse(addr)
     

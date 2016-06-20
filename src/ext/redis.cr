@@ -6,6 +6,10 @@ class Redis
       string_command(["CLUSTER", "NODES"])
     end
     
+    def addslots(slots : Array(Int32))
+      string_command(["CLUSTER", "ADDSLOTS"] + slots.map(&.to_s))
+    end
+
     def meet(host : String, port : String)
       string_command(["CLUSTER", "MEET", host, port])
     end

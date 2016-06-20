@@ -7,7 +7,7 @@ record Rcm::NodeInfo,
   recv   : Int64,
   epoch  : Int64,
   status : String,
-  slot   : String do
+  slot   : Rcm::Slot do
 
   def_equals_and_hash sha1
   delegate host, port, to: addr
@@ -31,15 +31,10 @@ record Rcm::NodeInfo,
     !slot.empty?
   end
 
-  def slot_range
-    case slot
-    when /\A(\d+)\Z/
-      ($1.to_i .. $1.to_i)
-    when /\A(\d+)-(\d+)\Z/
-      ($1.to_i .. $2.to_i)
-    else
-      raise "[BUG] #{addr} has no slot_range: '#{slot}'"
-    end
+  def first_slot : Int32
+    slot.slots.first {
+      raise "[BUG] #{addr} has no slot_range"
+    }
   end
   
   def to_s(io : IO)

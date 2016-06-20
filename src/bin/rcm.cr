@@ -20,6 +20,7 @@ class Rcm::Main
     Commands:
       nodes (file)        Print nodes info from file or server
       info <field>        Print given field from INFO for all nodes
+      addslots <slots>    Add slots to the node
       meet <master>       Join the cluster on <master>
       replicate <master>  Configure node as replica of the <master>
       import <tsv file>   Test data import from tsv file
@@ -27,9 +28,9 @@ class Rcm::Main
     Example:
       #{$0} nodes
       #{$0} info redis_version
+      #{$0} addslots 0-100            # or "0,1,2", "10000-"
       #{$0} meet 127.0.0.1:7001       # or shortly "meet :7001"
       #{$0} replicate 127.0.0.1:7001  # or shortly "replicate :7001"
-      #{$0} import foo.tsv
     EOF
 
   def run
@@ -50,6 +51,12 @@ class Rcm::Main
       field = (args.empty? || args[0].empty?) ? "v,cnt,m,d" : args[0]
       Cluster::ShowInfos.new(client).show(STDOUT, field: field)
 
+    when "addslots"
+      slot = Slot.parse(args.join(","))
+      die "addslots expects <slot range> # ex. 'addslot 0-16383'" if slot.empty?
+      puts "ADDSLOTS #{slot.to_s} (total: #{slot.size} slots)"
+      puts redis.addslots(slot.slots)
+      
     when "meet"
       host = args.shift { die "meet expects <master> # ex. 'meet 127.0.0.1:7001'" }
       addr = Addr.parse(host)
