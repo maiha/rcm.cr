@@ -25,7 +25,7 @@ module Rcm::Commands
         keys = field.split(",").map(&.strip)
         hash[node] = keys.map{|k| info.extract(k)}
       rescue err
-        hash[node] = ["error: #{err}".as(InfoExtractor::Value)]
+        hash[node] = [err.to_s.as(InfoExtractor::Value)]
       end
       hash
     end

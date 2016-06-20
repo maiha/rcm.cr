@@ -116,11 +116,15 @@ module Rcm
     end
 
     private def extract_count(search)
-      if @hash["db0"] =~ /^keys=(\d+)/
-        return "cnt(#{$1})"
-      end
-      raise ""
-    rescue
+      # TODO: DRYUP with `Redis::Commands#count`
+      cnt = case @hash.fetch("db0") { "" }
+            when /^keys=(\d+)/m
+              $1.to_i64
+            else
+              0.to_i64
+            end
+      return "cnt(#{cnt})"
+    rescue err : Errno
       return NotFound.new(search)
     end
   end
