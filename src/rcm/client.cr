@@ -5,7 +5,7 @@ class Rcm::Client
   delegate nodes, to: @cluster_info
   
   def initialize(@cluster_info : ClusterInfo, @password : String? = nil)
-    @slot2nodes = @cluster_info.slot2nodes.as(Hash(UInt16, NodeInfo))
+    @slot2nodes = @cluster_info.slot2nodes.as(Hash(Int32, NodeInfo))
     @node2redis = Hash(NodeInfo, Redis).new
   end
 

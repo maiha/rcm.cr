@@ -9,7 +9,7 @@ module Rcm
     
     property nodes, slot2nodes
     
-    @slot2nodes : Hash(UInt16, NodeInfo)
+    @slot2nodes : Hash(Int32, NodeInfo)
     
     def initialize(@nodes : Array(NodeInfo))
       @slot2nodes = build_slot2nodes
@@ -19,7 +19,7 @@ module Rcm
       build_slave_deps
     end
 
-    def open_slots : Array(UInt16)
+    def open_slots : Array(Int32)
       Slot::RANGE.to_a - slot2nodes.keys
     end
 
@@ -54,11 +54,11 @@ module Rcm
     end
 
     private def build_slot2nodes
-      Hash(UInt16, NodeInfo).new.tap {|hash|
+      Hash(Int32, NodeInfo).new.tap {|hash|
         nodes.each do |node|
           next unless node.master? && node.slot?
           node.slot_range.each do |slot|
-            hash[slot.to_u16] = node
+            hash[slot] = node
           end
         end
       }
