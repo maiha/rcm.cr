@@ -1,7 +1,6 @@
 record Rcm::NodeInfo,
   sha1   : String,
-  host   : String,
-  port   : Int32,
+  addr   : Addr,
   flags  : String,
   master : String,
   sent   : Int64,
@@ -11,8 +10,8 @@ record Rcm::NodeInfo,
   slot   : String do
 
   def_equals_and_hash sha1
+  delegate host, port, to: addr
   
-  val addr    = "#{host}:#{port}"
   val master? = !! flags["master"]?
   val slave?  = !! flags["slave"]?
   val fail?   = !! flags["fail"]?

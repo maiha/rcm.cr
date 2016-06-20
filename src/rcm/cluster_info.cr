@@ -32,7 +32,7 @@ module Rcm
     end
 
     def master_addr(node) : String
-      find_node_by(node.master).addr rescue "(#{node.sha1_6})"
+      find_node_by(node.master).addr.to_s rescue "(#{node.sha1_6})"
     end
     
     private def build_slave_deps : Hash(NodeInfo, Array(NodeInfo))

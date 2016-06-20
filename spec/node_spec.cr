@@ -16,7 +16,7 @@ describe Rcm::NodeInfo do
       EOF
 
       nodes = Array(Rcm::NodeInfo).parse(ret)
-      nodes.map(&.addr).should eq(["127.0.0.1:7001", "127.0.0.1:7002", "127.0.0.1:7003", "127.0.0.1:7004", "127.0.0.1:7005", "127.0.0.1:7006", "127.0.0.1:7007", "127.0.0.1:7008", "127.0.0.1:7009"])
+      nodes.map(&.addr.to_s).should eq(["127.0.0.1:7001", "127.0.0.1:7002", "127.0.0.1:7003", "127.0.0.1:7004", "127.0.0.1:7005", "127.0.0.1:7006", "127.0.0.1:7007", "127.0.0.1:7008", "127.0.0.1:7009"])
       nodes.map(&.port).should eq([7001, 7002, 7003, 7004, 7005, 7006, 7007, 7008, 7009])
       nodes.map(&.role).should eq(["slave", "master", "master", "slave", "slave", "slave", "master", "master", "master"])
       nodes.map(&.sent).should eq([0, 0, 0, 1466096807257, 0, 0, 0, 0, 0])
@@ -26,8 +26,8 @@ describe Rcm::NodeInfo do
 #                                   "7f193d 127.0.0.1:7002 master",
 #                                   "053dd7 127.0.0.1:7003 master"])
 
-      nodes.select(&.fail?).map(&.addr).should eq(["127.0.0.1:7004"])
-      nodes.select(&.disconnected?).map(&.addr).should eq(["127.0.0.1:7004"])
+      nodes.select(&.fail?).map(&.addr.to_s).should eq(["127.0.0.1:7004"])
+      nodes.select(&.disconnected?).map(&.addr.to_s).should eq(["127.0.0.1:7004"])
     end
   end
 end
