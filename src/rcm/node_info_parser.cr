@@ -24,7 +24,16 @@ struct Rcm::NodeInfo
     slot   = ary.shift { "" }
     
     host, port = addr.split(":", 2)
-    return Rcm::NodeInfo.new(sha1: sha1, host: host, port: port.to_i, flags: flags, master: master, sent: sent.to_i64, recv: recv.to_i64, epoch: epoch.to_i64, status: status, slot: slot)
+    host = "127.0.0.1" if host.to_s.empty? # sometimes Redis returns ":7001" for addr part
+    raise "port not found: `#{line}`" if port.to_s.empty?
+    begin
+      port = port.to_i
+    rescue err : ArgumentError
+      raise "port not converted: #{err} from `#{line}`"
+    end
+    port = port.as(Int32)
+    
+    return Rcm::NodeInfo.new(sha1: sha1, host: host, port: port, flags: flags, master: master, sent: sent.to_i64, recv: recv.to_i64, epoch: epoch.to_i64, status: status, slot: slot)
   end
 end
 

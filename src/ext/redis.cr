@@ -16,14 +16,15 @@ class Redis
 
     def count : Int64
       hash = info("Keyspace")
-      case hash["db0"]?
-      when nil
-        return -1.to_i64
+      case hash.fetch("db0") { "" }
       when /^keys=(\d+)/m
         return $1.to_i64
       else
         return 0.to_i64
       end
+    rescue err : Errno
+      # tcp down: #<Errno:0xd37a40 @message="Error connecting to '127.0.0.1:7001': Connection refused"
+      return -1.to_i64
     end
   end
 end
