@@ -23,6 +23,7 @@ class Rcm::Main
       addslots <slots>    Add slots to the node
       meet <master>       Join the cluster on <master>
       replicate <master>  Configure node as replica of the <master>
+      get <key>           Get specified data from cluster
       import <tsv file>   Test data import from tsv file
 
     Example:
@@ -69,6 +70,11 @@ class Rcm::Main
       node = info.find_node_by(name)
       puts "REPLICATE #{node.addr}"
       puts redis.replicate(node.sha1)
+
+    when "get"
+      key = args.shift { die "get expects <key>" }
+      val = client.get(key)
+      puts val.nil? ? "(nil)" : val.inspect
 
     when "import"
       name = args.shift { die "import expects <tsv-file>" }

@@ -18,7 +18,7 @@ class Rcm::Client
 
   def redis(key : String)
     slot = Rcm.slot(key)
-    node = @slot2nodes.fetch(slot) { raise "[BUG] node not found for slot:#{slot}" }
+    node = @slot2nodes.fetch(slot) { raise "This cluster doesn't cover slot=#{slot} (key=#{key.inspect})" }
     redis(node)
   end
 
