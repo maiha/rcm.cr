@@ -51,11 +51,10 @@ class Rcm::Main
       Cluster::ShowInfos.new(client).show(STDOUT, field: field)
 
     when "meet"
-      name = args.shift { die "meet expects <master>" }
-      info = ClusterInfo.parse(redis.nodes)
-      node = info.find_node_by(name)
-      puts "MEET #{node.host} #{node.port}"
-      puts redis.meet(node.host, node.port.to_s)
+      host = args.shift { die "meet expects <master> # ex. 'meet 127.0.0.1:7001'" }
+      addr = Addr.parse(host)
+      puts "MEET #{addr.host} #{addr.port}"
+      puts redis.meet(addr.host, addr.port.to_s)
       
     when "replicate"
       name = args.shift { die "replicate expects <master>" }
