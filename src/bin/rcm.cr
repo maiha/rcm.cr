@@ -47,7 +47,8 @@ class Rcm::Main
     case op
     when "nodes"
       info = ClusterInfo.parse(args.any? ? safe{ ARGF.gets_to_end } : redis.nodes)
-      Cluster::ShowNodes.new(Client.new(info, pass)).show(STDOUT, count: true)
+      counts = Client.new(info, pass).counts
+      Cluster::ShowNodes.new(info, counts).show(STDOUT)
 
     when "info"
       field = (args.empty? || args[0].empty?) ? "v,cnt,m,d" : args[0]

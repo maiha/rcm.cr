@@ -8,7 +8,7 @@ describe Rcm::Cluster::ShowNodes do
 
   it "#show" do
     io = MemoryIO.new
-    show = Rcm::Cluster::ShowNodes.new(info)
+    show = Rcm::Cluster::ShowNodes.new(info, Rcm::Counts.new)
     show.show(io)
   end
 

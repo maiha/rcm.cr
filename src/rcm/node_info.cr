@@ -31,6 +31,14 @@ record Rcm::NodeInfo,
     !slot.empty?
   end
 
+  def serving?
+    slot?
+  end
+
+  def standalone?
+    !serving? && !slave?
+  end
+  
   def first_slot : Int32
     slot.slots.first {
       raise "[BUG] #{addr} has no slot_range"

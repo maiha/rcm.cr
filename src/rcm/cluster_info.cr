@@ -7,16 +7,39 @@ module Rcm
     class NodeNotFound < Exception ; end
     class NodeNotUniq  < Exception ; end
     
-    property nodes, slot2nodes
+    property nodes, slot2nodes, slave_deps
     
     @slot2nodes : Hash(Int32, NodeInfo)
+    @slave_deps : Hash(NodeInfo, Array(NodeInfo))
     
     def initialize(@nodes : Array(NodeInfo))
       @slot2nodes = build_slot2nodes
+      @slave_deps = build_slave_deps
     end
-    
-    def slave_deps
-      build_slave_deps
+
+    def slaves : Array(NodeInfo)
+      slave_deps.values.flatten
+    end
+
+    def serving_masters : Array(NodeInfo)
+      nodes.select(&.serving?).sort_by(&.first_slot)
+    end
+
+    def orphaned_masters(counts : Hash(NodeInfo, Int64))
+      masters = [] of NodeInfo
+      each_serving_masters_with_slaves do |master, slaves|
+        next if slaves.any?{|slave| counts[slave] >= 0}
+        masters << master
+      end
+      return masters
+    end
+
+    def each_serving_masters_with_slaves
+      deps = slave_deps
+      serving_masters.each do |master|
+        slaves = deps.fetch(master) {[] of NodeInfo}
+        yield({master, slaves})
+      end
     end
 
     def open_slots : Array(Int32)

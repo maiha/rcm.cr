@@ -2,6 +2,10 @@ require "./spec_helper"
 
 describe Rcm::NodeInfo do
   describe ".parse" do
+    it "works for empty inputs" do
+      Array(Rcm::NodeInfo).parse("")
+    end
+
     it "builds nodes" do
       ret = <<-EOF
       7fc615ac14ab67991831aba46672b128eb984aa7 127.0.0.1:7007 master - 0 1466124474343 7 connected 0-5460
@@ -28,6 +32,7 @@ describe Rcm::NodeInfo do
 
       nodes.select(&.fail?).map(&.addr.to_s).should eq(["127.0.0.1:7004"])
       nodes.select(&.disconnected?).map(&.addr.to_s).should eq(["127.0.0.1:7004"])
+      nodes.select(&.standalone?).map(&.addr.to_s).should eq(["127.0.0.1:7008", "127.0.0.1:7009"])
     end
   end
 end

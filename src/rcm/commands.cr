@@ -10,8 +10,8 @@ module Rcm::Commands
   end
 
   # **Return value**: -1 when redis level error
-  def counts
-    nodes.reduce(Hash(NodeInfo, Int64).new) do |h, n|
+  def counts : Counts
+    nodes.reduce(Counts.new) do |h, n|
       h[n] = (redis(n).count rescue -1.to_i64)
       h
     end

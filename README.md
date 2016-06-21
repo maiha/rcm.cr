@@ -12,16 +12,17 @@ Redis Cluster Manager in Crystal
 
 ```shell
 % rcm -p 7001 nodes
-184f03 [127.0.0.1:7001]( 0)  master(*)   0-5460
-0da314 [127.0.0.1:7004](-1)    +slave(!)   (slave of 127.0.0.1:7001)
-dc512f [127.0.0.1:7007]( 0)    +slave(*)   (slave of 127.0.0.1:7001)
-e3423c [127.0.0.1:7002]( 0)  master(*)   5461-10922
-177f87 [127.0.0.1:7005]( 0)    +slave(*)   (slave of 127.0.0.1:7002)
-cfd12f [127.0.0.1:7003]( 0)  master(*)   10923-16383
-b22cef [127.0.0.1:7006]( 0)    +slave(*)   (slave of 127.0.0.1:7003)
-79689c [127.0.0.1:7008]( 0)  master(*)
-0e78c4 [127.0.0.1:7009]( 0)  master(*)
+89580c [127.0.0.1:7001](0)  master(*)   0-5000
+47778f [127.0.0.1:7004](0)    +slave(*)   (slave of 127.0.0.1:7001)
+72e796 [127.0.0.1:7002](0)  master(*)   5001-10000
+fe9c7d [127.0.0.1:7005](0)    +slave(*)   (slave of 127.0.0.1:7002)
+1f340e [127.0.0.1:7003](0)  master(*)   10001-16383
+021b80 [127.0.0.1:7006](0)    +slave(*)   (slave of 127.0.0.1:7003)
+5982db [127.0.0.1:7007](0)  standalone(*)
+[OK] All 16384 slots are covered by 3 masters and 3 slaves.
+[OK] All slots are available with 2 replication factor(s)
 ```
+- NOTICE: This sends `INFO keyspace` to all nodes.
 
 ### info
 
@@ -47,6 +48,7 @@ f0da61 [127.0.0.1:7002]  role(master), cnt(8751), days(0)
   - `cnt`, `count` : extract `db0:keys=(\d+)`
   - `d`, `day` : delegate to `uptime_in_days`
 
+- NOTICE: This sends `INFO` to all nodes.
 
 ## Usage (replication features)
 
@@ -79,13 +81,17 @@ f0da61 [127.0.0.1:7002]  role(master), cnt(8751), days(0)
 ## TODO
 
 - [ ] Dryrun
+- [ ] Info
+  - [ ] Suggest rebalancing nodes
 - [ ] Check
-  - [ ] Nodes health check
-  - [ ] Slots coverage check
+  - [x] Nodes health check
+  - [x] Slots coverage check
 - [ ] Utils
+  - [ ] Rebalance nodes
+  - [ ] Bulkinsert on import
   - [ ] Bulkinsert on import
 - [ ] Debug
-  - [ ] Slots filler
+  - [ ] Scan slots
 
 ## Contributing
 
