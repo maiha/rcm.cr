@@ -11,7 +11,7 @@ class Rcm::Main
   option help  : Bool  , "--help", "Output this help and exit", false
   
   usage <<-EOF
-    #{$0} version 0.1.2
+    #{$0} version 0.1.3
 
     Usage: #{$0} <commands>
 
