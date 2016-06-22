@@ -40,17 +40,35 @@ module Rcm
 
     # odd state: this slave belongs to another slave (What's this?)
     def orphaned_slaves
-      set = slaves.to_set
-      slaves.select{|s| set.includes?(s)}
+      masters = serving_masters.to_set
+      slaves.reject{|s| find_node_by(s.master).serving? rescue false }
     end
 
+    # TODO: better algorithm
+    def minimum_master_or_nil(counts)
+      oms = orphaned_masters(counts)
+      if oms.any?
+        return oms[0]
+      end
+      c = 1000
+      found = nil
+      each_serving_masters_with_slaves do |m, slaves|
+        if slaves.size < c
+          found = m
+          c = slaves.size
+        end
+      end
+
+      return found
+    end
+    
     def each_serving_masters_with_slaves
       deps = slave_deps
       serving_masters.each do |master|
         slaves = deps.fetch(master) {[] of NodeInfo}
         yield({master, slaves})
       end
-    end
+    end    
 
     def open_slots : Array(Int32)
       Slot::RANGE.to_a - slot2nodes.keys

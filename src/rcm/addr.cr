@@ -25,5 +25,12 @@ module Rcm
     def to_s(io : IO)
       io << "#{host}:#{port}"
     end
+
+    def connection_string
+      String.build do |s|
+        s << "-h #{host} " unless host == "127.0.0.1"
+        s << "-p #{port} " unless port == 6379
+      end
+    end
   end
 end
