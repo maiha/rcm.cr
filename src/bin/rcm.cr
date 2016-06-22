@@ -8,6 +8,7 @@ class Rcm::Main
   option host  : String, "-h <hostname>", "Server hostname", "127.0.0.1"
   option port  : Int32 , "-p <port>", "Server port", 6379
   option pass  : String?, "-a <password>", "Password to use when connecting to the server", nil
+  option verbose : Bool, "-v", "Enable verbose output", false
   option help  : Bool  , "--help", "Output this help and exit", false
   
   usage <<-EOF
@@ -48,7 +49,7 @@ class Rcm::Main
     when "nodes"
       info = ClusterInfo.parse(args.any? ? safe{ ARGF.gets_to_end } : redis.nodes)
       counts = Client.new(info, pass).counts
-      Cluster::ShowNodes.new(info, counts).show(STDOUT)
+      Cluster::ShowNodes.new(info, counts, verbose: verbose).show(STDOUT)
 
     when "info"
       field = (args.empty? || args[0].empty?) ? "v,cnt,m,d" : args[0]

@@ -14,7 +14,7 @@ module Rcm::Cluster
       if open.empty?
         # [OK] All 16384 slots covered.
         m = @info.serving_masters.size
-        s = @info.slaves.size
+        s = @info.acked_slaves.size
         io.puts "[OK] All 16384 slots are covered by #{m} masters and #{s} slaves.".colorize.green
       else
         # [ERR] Not all 16384 slots are covered by nodes.

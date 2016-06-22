@@ -22,7 +22,7 @@ describe Rcm::NodeInfo do
       nodes = Array(Rcm::NodeInfo).parse(ret)
       nodes.map(&.addr.to_s).should eq(["127.0.0.1:7001", "127.0.0.1:7002", "127.0.0.1:7003", "127.0.0.1:7004", "127.0.0.1:7005", "127.0.0.1:7006", "127.0.0.1:7007", "127.0.0.1:7008", "127.0.0.1:7009"])
       nodes.map(&.port).should eq([7001, 7002, 7003, 7004, 7005, 7006, 7007, 7008, 7009])
-      nodes.map(&.role).should eq(["slave", "master", "master", "slave", "slave", "slave", "master", "master", "master"])
+      nodes.map(&.role).should eq(["slave", "master", "master", "slave,fail", "slave", "slave", "master", "master", "master"])
       nodes.map(&.sent).should eq([0, 0, 0, 1466096807257, 0, 0, 0, 0, 0])
       nodes.map(&.recv).should eq([1466130784976, 0, 1466124472808, 1466096806037, 1466124473832, 1466124474856, 1466124474343, 1466124473320, 1466124473320])
       nodes.map(&.slot.to_s).should eq(["", "5461-10922", "10923-16383", "", "", "", "0-5460", "", ""])

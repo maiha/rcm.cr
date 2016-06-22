@@ -1,71 +1,92 @@
 module Rcm::Cluster
   class ShowNodesList
-    delegate nodes, slave_deps, master_addr, open_slots, to: @info
+    delegate nodes, master_addr, to: @info
 
     property counts, info
 
-    def initialize(@info : ClusterInfo, @counts : Counts)
+    def initialize(@info : ClusterInfo, @counts : Counts, @verbose = false)
+      @alen = nodes.map(&.addr.size).max.as(Int32)
+      @clen = counts.values.map(&.to_s.size).max? || 1
     end
 
     def show(io : IO)
       show_nodes_list(io)
     end
 
-    private def node_role(node)
-      return "standalone" if node.standalone?
-      return "  +slave" if node.slave?
-      return node.role
+    private def node_mark(node)
+      node.status.split(",").map(&.sub("disconnected", "!").sub("connected", "*")).join
     end
 
-    private def show_node(io : IO, node, slaves, shown)
+    private def show_node(io : IO, node, shown, orphaned_master = false, orphaned_slave = false)
       return if shown.includes?(node)
 
-      mark = node.status.split(",").map(&.sub("disconnected", "!").sub("connected", "*")).join
-      addr = "[#{node.addr}]"
-      alen = nodes.map(&.addr.size).max
-
-      info = node.slot
-      info = "(slave of #{master_addr(node)})" if node.slave?
-
-      cnt  = counts.fetch(node) { "?" }
-      clen = counts.values.map(&.to_s.size).max? || 1
-
-      head = "%s %-#{alen}s(%#{clen}s)  " % [node.sha1_6, addr, cnt]
-      body = "%6s%-5s %s" % [node_role(node), "(#{mark})", info]
-
-      # colorize down node as RED where cnt == -1
-      head = head.colorize.red if cnt == -1
-      io.print head
+      sha1 = node.sha1_6
+      addr = "%-#{@alen}s" % "[#{node.addr}]"
+      cnt  = "(%#{@clen}s)" % counts.fetch(node) { "?" }
+      head = "#{sha1} #{addr}#{cnt}  "
       
-      if node.fail?
-        io.puts "#{body}".colorize.red
+      sloted   = "[%-11s] " % node.slot if node.slot?
+      orphaned = "orphaned " if orphaned_master || orphaned_slave
+
+      name = node.role
+      name = "standalone #{name}" if node.standalone?
+      name = "  +#{name}" if node.slave? && ! orphaned_slave
+      
+      label = "%s(%s)" % [name, node_mark(node)]
+      
+      body =
+        if orphaned_master || orphaned_slave || node.serving?
+          "#{sloted}#{orphaned}#{label}"
+        elsif node.slave? || node.standalone?
+          "#{label}"
+        else
+          "#{label}(unknown status)"
+        end
+      info = "of #{master_addr(node)}" if node.slave?
+
+      if node.fail? || (counts.fetch(node, 0) == -1)
+        io.puts "#{head}#{body} #{info}".colorize.red
       elsif node.disconnected?
-        io.puts "#{body}".colorize.yellow
-      elsif node.master? && node.slot?
-        io.puts "#{body}".colorize.green
-        slaves[node]?.try(&.each{|slave| show_node(io, slave, slaves, shown)})
+        io << head
+        io.puts "#{body} #{info}".colorize.yellow
+      elsif orphaned_master
+        io << head
+        io.puts "#{body} #{info}".colorize.yellow
+      elsif orphaned_slave
+        io.puts "#{head}#{body} #{info}".colorize.yellow
+      elsif node.serving?
+        io << head
+        io.puts "#{body} #{info}".colorize.green
       elsif node.slave?
-        io.puts "#{body}".colorize.cyan
+        io.print head
+        io.puts "#{body} #{info}".colorize.cyan
       elsif node.standalone?
-        io.puts "#{body}"
+        io << head
+        io.puts "#{body} #{info}"
       else
-        io.puts "#{body} (unknown status)".colorize.red
+        io << head
+        io.puts "#{body} #{info}".colorize.red
       end
       shown.add(node)
     end
 
     private def show_nodes_list(io : IO)
-      slaves = slave_deps
-      shown  = Set(NodeInfo).new
+      shown = Set(NodeInfo).new
 
-      # first, render masters where slot exists
-      info.serving_masters.each do |node|
-        show_node(io, node, slaves, shown)
+      # first, render serving masters and those slaves
+      info.each_serving_masters_with_slaves do |master, slaves|
+        show_node(io, master, shown, orphaned_master: slaves.empty?)
+        slaves.each{|slave| show_node(io, slave, shown)}
       end
 
-      # then, render all nodes (dup is skipped by shown cache)
+      # then, render orphaned slaves
+      info.orphaned_slaves.each do |slave|
+        show_node(io, slave, shown, orphaned_slave: true)
+      end
+      
+      # finaly, render all rest nodes (dup is skipped by shown cache)
       nodes.each do |node|
-        show_node(io, node, slaves, shown)
+        show_node(io, node, shown)
       end
     end
   end

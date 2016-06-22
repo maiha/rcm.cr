@@ -24,7 +24,7 @@ record Rcm::NodeInfo,
   end
 
   def role
-    %w( master slave ).map{|k| flags[k]?}.compact.first { "" }
+    flags.sub(/myself,/, "")
   end
   
   def slot?

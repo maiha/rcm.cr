@@ -18,6 +18,10 @@ module Rcm
     end
 
     def slaves : Array(NodeInfo)
+      nodes.select(&.slave?)
+    end
+
+    def acked_slaves : Array(NodeInfo)
       slave_deps.values.flatten
     end
 
@@ -32,6 +36,12 @@ module Rcm
         masters << master
       end
       return masters
+    end
+
+    # odd state: this slave belongs to another slave (What's this?)
+    def orphaned_slaves
+      set = slaves.to_set
+      slaves.select{|s| set.includes?(s)}
     end
 
     def each_serving_masters_with_slaves

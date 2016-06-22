@@ -5,7 +5,7 @@ class BufferedLogger < Logger
     @buffer = MemoryIO.new
     @counts = Hash(Logger::Severity, Int32).new { 0 }
     super(@buffer)
-
+    @level = Logger::Severity::DEBUG
     @formatter = Formatter.new do |severity, datetime, progname, message, io|
       message = colorize(severity, message) if @color
       io << @prefix if @prefix.size > 0
@@ -36,6 +36,8 @@ class BufferedLogger < Logger
       message.colorize.green
     when Severity::ERROR.to_s, Severity::FATAL.to_s
       message.colorize.red
+    when Severity::DEBUG.to_s
+      message
     else
       "#{severity.inspect}: #{message}"
     end
