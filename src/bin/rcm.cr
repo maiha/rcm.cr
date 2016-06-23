@@ -8,6 +8,7 @@ class Rcm::Main
   option host  : String, "-h <hostname>", "Server hostname", "127.0.0.1"
   option port  : Int32 , "-p <port>", "Server port", 6379
   option pass  : String?, "-a <password>", "Password to use when connecting to the server", nil
+  option yes   : Bool, "--yes", "Accept advise automatically", false
   option verbose : Bool, "-v", "Enable verbose output", false
   option help  : Bool  , "--help", "Output this help and exit", false
   
@@ -27,6 +28,7 @@ class Rcm::Main
       get <key>           Get specified data from the cluster
       set <key> <val>     Set specified data to the cluster
       import <tsv file>   Test data import from tsv file
+      advise (--yes)      Print advises. Execute them when --yes given
 
     Example:
       #{$0} nodes
@@ -91,6 +93,20 @@ class Rcm::Main
       step = Cluster::StepImport.new(Client.new(info, pass))
       step.import(file, delimiter: "\t", progress: true, count: 1000)
       
+    when /^advise$/i
+      replica = Advise::BetterReplication.new(client.cluster_info, client.counts)
+      if replica.advise?
+        if yes
+          puts "#{Time.now}: BetterReplication: #{replica.impact}"
+          replica.advises.each do |a|
+            puts a.cmd
+            system(a.cmd)
+          end
+        else
+          Cluster::ShowAdviseBetterReplication.new(replica).show(STDOUT)
+        end
+      end
+
     else
       die "unknown command: #{op}"
     end

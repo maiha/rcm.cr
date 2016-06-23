@@ -1,8 +1,10 @@
 module Rcm::Cluster
   class ShowAdviseBetterReplication
-    delegate nodes, to: @info
+    def initialize(@adviser : Advise::BetterReplication)
+    end
 
-    def initialize(@info : ClusterInfo, @counts : Counts)
+    def initialize(info : ClusterInfo, counts : Counts)
+      initialize(Rcm::Advise::BetterReplication.new(info, counts))
     end
 
     def show(io : IO)
@@ -10,10 +12,9 @@ module Rcm::Cluster
     end
 
     private def show_advise_better_replication(io : IO)
-      adviser = Rcm::Advise::BetterReplication.new(@info, @counts)
-      if adviser.advise?
-        io.puts "advise: This can provide better replication. (#{adviser.impact})".colorize.yellow
-        adviser.advises.each do |a|
+      if @adviser.advise?
+        io.puts "advise: This can provide better replication. (#{@adviser.impact})".colorize.yellow
+        @adviser.advises.each do |a|
           io.puts "  #{a}".colorize.yellow
         end
       end

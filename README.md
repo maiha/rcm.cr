@@ -63,7 +63,7 @@ f0da61 [127.0.0.1:7002]  role(master), cnt(8751), days(0)
 
 ### advise
 
-- In biased replications, `nodes` also advises a command to fix it.
+- In biased replications, `nodes` and `advise` advise a command to fix it.
 ```
 % rcm -p 7001 nodes
 ...
@@ -78,6 +78,20 @@ OK
 % rcm -p 7001 nodes
 ...
 [OK] All slots are available with 3 replication factor(s).
+```
+
+- `advise --yes` is suit for batch.
+
+```
+# NOP when replication is well balanced
+% rcm -p 7001 advise --yes
+
+# `replicate` command is executed automatically when unblanaced
+% rcm -p 7001 advise --yes
+2016-06-23 21:21:49 +0900: BetterReplication: rf of '127.0.0.1:7016': 2 -> 3
+rcm -h '127.0.0.1' -p 7012 REPLICATE 127.0.0.1:7016
+REPLICATE 127.0.0.1:7016
+OK
 ```
 
 ## Usage (utility features)
@@ -109,7 +123,7 @@ OK
   - [x] Rebalance nodes
   - [ ] Rebalance slots
 - [ ] Utils
-  - [ ] Rebalance nodes
+  - [x] Rebalance nodes
   - [ ] Rebalance slots
   - [ ] Bulkinsert on import
 - [ ] Debug

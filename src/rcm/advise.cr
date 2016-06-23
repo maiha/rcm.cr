@@ -3,8 +3,12 @@ module Rcm::Advise
     master : NodeInfo,
     slave : NodeInfo do
 
+    def cmd
+      "rcm #{slave.addr.connection_string} REPLICATE #{master.addr}"
+    end
+
     def to_s(io : IO)
-      io << "rcm #{slave.addr.connection_string} REPLICATE #{master.addr}"
+      io << cmd
     end
   end
 end
