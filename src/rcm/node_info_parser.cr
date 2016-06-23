@@ -16,7 +16,7 @@ struct Rcm::NodeInfo
     sha1   = shift.call
     addr   = shift.call
     flags  = shift.call
-    master = shift.call.delete("-")
+    master = shift.call.sub(/^-$/, "")
     sent   = shift.call
     recv   = shift.call
     epoch  = shift.call

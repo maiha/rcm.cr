@@ -46,45 +46,45 @@ class Rcm::Main
     op = args.shift { die "command not found!" }
 
     case op
-    when "nodes"
+    when /^nodes$/i
       info = ClusterInfo.parse(args.any? ? safe{ ARGF.gets_to_end } : redis.nodes)
       counts = Client.new(info, pass).counts
       Cluster::ShowNodes.new(info, counts, verbose: verbose).show(STDOUT)
 
-    when "info"
+    when /^info$/i
       field = (args.empty? || args[0].empty?) ? "v,cnt,m,d" : args[0]
       Cluster::ShowInfos.new(client).show(STDOUT, field: field)
 
-    when "addslots"
+    when /^addslots$/i
       slot = Slot.parse(args.join(","))
       die "addslots expects <slot range> # ex. 'addslot 0-16383'" if slot.empty?
       puts "ADDSLOTS #{slot.to_s} (total: #{slot.size} slots)"
       puts redis.addslots(slot.slots)
       
-    when "meet"
+    when /^meet$/i
       host = args.shift { die "meet expects <master> # ex. 'meet 127.0.0.1:7001'" }
       addr = Addr.parse(host)
       puts "MEET #{addr.host} #{addr.port}"
       puts redis.meet(addr.host, addr.port.to_s)
       
-    when "replicate"
+    when /^replicate$/i
       name = args.shift { die "replicate expects <master>" }
       info = ClusterInfo.parse(redis.nodes)
-      node = info.find_node_by(name)
+      node = info.find_node_by!(name)
       puts "REPLICATE #{node.addr}"
       puts redis.replicate(node.sha1)
 
-    when "get"
+    when /^get$/i
       key = args.shift { die "get expects <key>" }
       val = client.get(key)
       puts val.nil? ? "(nil)" : val.inspect
 
-    when "set"
+    when /^set$/i
       key = args.shift { die "set expects <key> <val>" }
       val = args.shift { die "get expects <key> <val>" }
       client.set(key, val)
 
-    when "import"
+    when /^import$/i
       name = args.shift { die "import expects <tsv-file>" }
       file = safe{ File.open(name) }
       info = ClusterInfo.parse(redis.nodes)

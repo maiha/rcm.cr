@@ -103,13 +103,12 @@ module Options
     exit -1
   end
 
+  # broken
   protected def argf_read : Bytes
     dst = MemoryIO.new
 
     begin
       got = ARGF.gets_to_end
-      p [:got, got]
-      exit
     rescue IO::EOFError
     end
     dst.to_slice

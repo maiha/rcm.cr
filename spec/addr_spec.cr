@@ -19,4 +19,38 @@ describe Rcm::Addr do
       end
     end
   end
+
+  describe "#connection_string" do
+    it "should quote host" do
+      addr = Rcm::Addr.parse("192.168.0.1:7000")
+      addr.connection_string.should eq("-h '192.168.0.1' -p 7000")
+    end
+
+    it "should preserve 127.0.0.1 and 6379" do
+      addr = Rcm::Addr.parse("127.0.0.1:6379")
+      addr.connection_string.should eq("-h '127.0.0.1' -p 6379")
+    end
+  end
+
+  describe "#connection_string_min" do
+    it "should build -h and -p" do
+      addr = Rcm::Addr.parse("192.168.0.1:7000")
+      addr.connection_string_min.should eq("-h '192.168.0.1' -p 7000")
+    end
+
+    it "should remove 127.0.0.1" do
+      addr = Rcm::Addr.parse("127.0.0.1:7000")
+      addr.connection_string_min.should eq("-p 7000")
+    end
+
+    it "should remove 6379" do
+      addr = Rcm::Addr.parse("192.168.0.1:6379")
+      addr.connection_string_min.should eq("-h '192.168.0.1'")
+    end
+
+    it "should return empty when host and port are default values" do
+      addr = Rcm::Addr.parse("127.0.0.1:6379")
+      addr.connection_string_min.should eq("")
+    end
+  end
 end

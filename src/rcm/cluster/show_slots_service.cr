@@ -18,7 +18,7 @@ module Rcm::Cluster
     end
 
     private def show_warnings(log)
-      slaves = info.orphaned_slaves
+      slaves = info.orphaned_slaves.select{|n| @info.active?(n, @counts)}
       if slaves.any?
         show_orphaned_slaves(log, slaves)
       else
@@ -41,14 +41,14 @@ module Rcm::Cluster
         master = info.minimum_master_or_nil(counts)
         case master
         when NodeInfo
-          log.warn "Found #{slaves.size} orphaned slave(s)! Suggestion to fix it."
+          log.warn "Found #{slaves.size} orphaned slave(s). Suggestion to fix it."
           slaves.each do |slave|
             src = slave.addr.connection_string
-            log.warn "  #{$0} #{src}replicate #{master.addr}"
+            log.warn "  rcm #{src} replicate #{master.addr}"
             break
           end
         else
-          log.warn "Found #{slaves.size} orphaned slave(s)! (no masters)"
+          log.warn "Found #{slaves.size} orphaned slave(s). (no masters)"
         end
       end
     end

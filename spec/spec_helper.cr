@@ -15,3 +15,7 @@ def redis_info(bulk)
   end
   results
 end
+
+def load_cluster_info(name)
+  Rcm::ClusterInfo.parse(fixtures(name))
+end

@@ -12,15 +12,15 @@ Redis Cluster Manager in Crystal
 
 ```shell
 % rcm -p 7001 nodes
-89580c [127.0.0.1:7001](0)  master(*)   0-5000
-47778f [127.0.0.1:7004](0)    +slave(*)   (slave of 127.0.0.1:7001)
-72e796 [127.0.0.1:7002](0)  master(*)   5001-10000
-fe9c7d [127.0.0.1:7005](0)    +slave(*)   (slave of 127.0.0.1:7002)
-1f340e [127.0.0.1:7003](0)  master(*)   10001-16383
-021b80 [127.0.0.1:7006](0)    +slave(*)   (slave of 127.0.0.1:7003)
-5982db [127.0.0.1:7007](0)  standalone(*)
+b98ca1 [127.0.0.1:7001](0)  [0-5000     ] master(*)
+835bea [127.0.0.1:7004](0)    +slave(*) of 127.0.0.1:7001
+8a3c07 [127.0.0.1:7002](0)  [5001-10000 ] master(*)
+0d0c75 [127.0.0.1:7005](0)    +slave(*) of 127.0.0.1:7002
+33d324 [127.0.0.1:7003](0)  [10001-16383] master(*)
+4a4da6 [127.0.0.1:7006](0)    +slave(*) of 127.0.0.1:7003
+2581a1 [127.0.0.1:7007](0)  standalone master(*)
 [OK] All 16384 slots are covered by 3 masters and 3 slaves.
-[OK] All slots are available with 2 replication factor(s)
+[OK] All slots are available with 2 replication factor(s).
 ```
 - NOTICE: This sends `INFO keyspace` to all nodes.
 
@@ -61,6 +61,25 @@ f0da61 [127.0.0.1:7002]  role(master), cnt(8751), days(0)
 % rcm -p 7004 replicate 127.0.0.1:7001  # same as "replicate :7001" for localhost
 ```
 
+### advise
+
+- In biased replications, `nodes` also advises a command to fix it.
+```
+% rcm -p 7001 nodes
+...
+[OK] All slots are available with 2+ replication factor(s).
+advise: This can provide better replication. (rf of '127.0.0.1:7017': 2 -> 3)
+  rcm -h '127.0.0.1' -p 7011 REPLICATE 127.0.0.1:7017
+
+% rcm -h '127.0.0.1' -p 7011 REPLICATE 127.0.0.1:7017
+REPLICATE 127.0.0.1:7017
+OK
+
+% rcm -p 7001 nodes
+...
+[OK] All slots are available with 3 replication factor(s).
+```
+
 ## Usage (utility features)
 
 #### import
@@ -81,14 +100,17 @@ f0da61 [127.0.0.1:7002]  role(master), cnt(8751), days(0)
 ## TODO
 
 - [ ] Dryrun
-- [ ] Info
-  - [ ] Suggest rebalancing nodes
 - [ ] Check
   - [x] Nodes health check
   - [x] Slots coverage check
+  - [x] detect orphaned master
+  - [x] detect orphaned slave
+- [ ] Advise
+  - [x] Rebalance nodes
+  - [ ] Rebalance slots
 - [ ] Utils
   - [ ] Rebalance nodes
-  - [ ] Bulkinsert on import
+  - [ ] Rebalance slots
   - [ ] Bulkinsert on import
 - [ ] Debug
   - [ ] Scan slots

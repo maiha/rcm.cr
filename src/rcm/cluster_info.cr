@@ -41,7 +41,7 @@ module Rcm
     # odd state: this slave belongs to another slave (What's this?)
     def orphaned_slaves
       masters = serving_masters.to_set
-      slaves.reject{|s| find_node_by(s.master).serving? rescue false }
+      slaves.reject{|s| find_node_by!(s.master).serving? rescue false }
     end
 
     # TODO: better algorithm
@@ -74,25 +74,37 @@ module Rcm
       Slot::RANGE.to_a - slot2nodes.keys
     end
 
-    def find_node_by(name : String) : NodeInfo
+    def active?(node : NodeInfo, counts : Counts)
+      counts[node] >= 0
+    rescue KeyError
+      false
+    end
+
+    def find_node_by(name : String)
+      find_node_by!(name) rescue nil
+    end
+
+    def find_node_by!(name : String) : NodeInfo
       if name =~ /[\.:]/
-        find_node_by_addr(name)
+        find_node_by_addr!(name)
       else
-        find_node_by_sha1(name)
+        find_node_by_sha1!(name)
       end
     end
 
     def master_addr(node) : String
-      find_node_by(node.master).addr.to_s rescue "(#{node.sha1_6})"
+      find_node_by!(node.master).addr.to_s rescue "(#{node.sha1_6})"
     end
     
     private def build_slave_deps : Hash(NodeInfo, Array(NodeInfo))
       slaves = {} of NodeInfo => Array(NodeInfo)
       nodes.each do |node|
-        if node.slave? && !node.master.empty?
-          master = find_node_by(node.master)
-          slaves[master] ||= [] of NodeInfo
-          slaves[master] << node
+        if node.slave? && node.has_master?
+          case (master = find_node_by(node.master))
+          when NodeInfo
+            slaves[master] ||= [] of NodeInfo
+            slaves[master] << node
+          end
         end
       end
 
@@ -115,7 +127,7 @@ module Rcm
       }
     end
 
-    def find_node_by_addr(addr)
+    def find_node_by_addr!(addr)
       port = nil
       case addr
       when /(.*):\Z/
@@ -142,7 +154,7 @@ module Rcm
       end
     end
 
-    def find_node_by_sha1(sha1)
+    def find_node_by_sha1!(sha1)
       found = nodes.select{|n| n.sha1 =~ /\A#{sha1}/}
       case found.size
       when 0

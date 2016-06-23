@@ -3,6 +3,9 @@ module Rcm
     host : String,
     port : Int32 do
 
+    DEFAULT_HOST = "127.0.0.1"
+    DEFAULT_PORT = 6379
+
     delegate size, to: to_s
 
     def self.parse(str : String)
@@ -28,9 +31,16 @@ module Rcm
 
     def connection_string
       String.build do |s|
-        s << "-h #{host} " unless host == "127.0.0.1"
-        s << "-p #{port} " unless port == 6379
-      end
+        s << "-h '#{host}' "
+        s << "-p #{port} "
+      end.strip
+    end
+
+    def connection_string_min
+      String.build do |s|
+        s << "-h '#{host}' " unless host == DEFAULT_HOST
+        s << "-p #{port} " unless port == DEFAULT_PORT
+      end.strip
     end
   end
 end

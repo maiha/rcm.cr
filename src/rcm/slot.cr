@@ -59,6 +59,10 @@ module Rcm
     def to_s(io : IO)
       io << label
     end
+
+    def inspect(io : IO)
+      io << label
+    end
   end
 
   def self.slot(key : String) : Int32
