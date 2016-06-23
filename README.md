@@ -2,8 +2,6 @@
 
 Redis Cluster Manager in Crystal
 
-- in beta stage (crystal-0.18.2)
-
 ## Usage (information features)
 
 ### nodes
