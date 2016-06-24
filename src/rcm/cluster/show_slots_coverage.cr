@@ -26,7 +26,7 @@ module Rcm::Cluster
         io.puts "[OK] All 16384 slots are covered by #{m} masters and #{s} slaves.".colorize.green
         if @dead_nodes.any?
           dead_info = @dead_nodes.map(&.addr.to_s).sort.inspect
-          io.puts "  But found #{@dead_nodes.size} servers down. #{dead_info}".colorize.red
+          io.puts "  But found #{@dead_nodes.size} servers down. #{dead_info}".colorize.yellow
         else
         end
       else

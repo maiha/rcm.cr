@@ -3,26 +3,26 @@ LINK_FLAGS = --link-flags "-static"
 SRCS = ${wildcard src/bin/*.cr}
 PROGS = $(SRCS:src/bin/%.cr=%)
 
-.PHONY : all build clean bin
+.PHONY : all static compile spec clean bin
 .PHONY : ${PROGS}
 
-all: build
+all: static
 
-build: bin ${PROGS}
+static: bin ${PROGS}
 
 bin:
 	@mkdir -p bin
 
 rcm: src/bin/rcm.cr
-	crystal build --release $^ -o bin/$@ ${LINK_FLAGS}
+	crystal compile --release $^ -o bin/$@ ${LINK_FLAGS}
 
 spec:
 	crystal spec -v
 
-test-compile-bin:
+compile:
 	@for x in src/bin/*.cr ; do\
-	  crystal build "$$x" -o /dev/null ;\
+	  crystal compile "$$x" -o /dev/null ;\
 	done
 
 clean:
-	@rm -rf bin tmp
+	@rm -rf bin

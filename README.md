@@ -2,6 +2,8 @@
 
 Redis Cluster Manager in Crystal
 
+- binary download: https://github.com/maiha/rcm.cr/releases
+
 ## Usage (information features)
 
 ### nodes

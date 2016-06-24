@@ -1,4 +1,5 @@
 language: crystal
 script:
-  - crystal spec -v
-  - make
+  - make spec
+  - make compile
+  - make static
