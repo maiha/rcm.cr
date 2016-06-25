@@ -18,7 +18,7 @@ class Redis
       string_command(["CLUSTER", "REPLICATE", master])
     end
 
-    def count : Int64
+    def count! : Int64
       hash = info("Keyspace")
       case hash.fetch("db0") { "" }
       when /^keys=(\d+)/m
@@ -26,6 +26,10 @@ class Redis
       else
         return 0.to_i64
       end
+    end
+
+    def count : Int64
+      count!
     rescue err : Errno
       # tcp down: #<Errno:0xd37a40 @message="Error connecting to '127.0.0.1:7001': Connection refused"
       return -1.to_i64

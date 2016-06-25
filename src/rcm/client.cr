@@ -12,8 +12,12 @@ class Rcm::Client
   include Enumerable(Redis)     # for all redis connections
   include Rcm::Commands
 
+  def new_redis(node : NodeInfo)
+    Redis.new(host: node.host, port: node.port, password: @password)
+  end
+  
   def redis(node : NodeInfo)
-    @node2redis[node] ||= Redis.new(host: node.host, port: node.port, password: @password)
+    @node2redis[node] ||= new_redis(node)
   end
 
   def redis(key : String)

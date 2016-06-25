@@ -1,4 +1,9 @@
 language: crystal
+addons:
+  apt:
+    packages:
+    - libgpm-dev
+    - libncursesw5-dev
 script:
   - make spec
   - make compile

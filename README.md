@@ -96,7 +96,24 @@ OK
 
 ## Usage (utility features)
 
-#### import
+### ping (experimental)
+
+- provides continual monitoring using curses
+- ex) `rcm -p 7001 ping`
+
+```
+2016-06-26 17:25:52 +0900
+                              |17:25
+127.0.0.1:7001(8708)  ........++.............+++.......-EEEE+..
+127.0.0.1:7002(8698)  ...-EEEEEEEEEE++........+++..............
+127.0.0.1:7003(11086) ..........++..............+++............
+127.0.0.1:7004(8708)  ........++.............+++...............
+127.0.0.1:7005(8698)  .........++.............+++.....-EEEEEEEE
+127.0.0.1:7006(11086) ..........++..............+++............
+127.0.0.1:7007(0)     .........................................
+```
+
+### import
 
 - (experimental) This is too slow deu to step import by one by
 
@@ -123,9 +140,11 @@ OK
   - [x] Rebalance nodes
   - [ ] Rebalance slots
 - [ ] Utils
+  - [ ] Create cluster
   - [x] Rebalance nodes
   - [ ] Rebalance slots
   - [ ] Bulkinsert on import
+  - [x] Ping monitoring
 - [ ] Debug
   - [ ] Scan slots
 

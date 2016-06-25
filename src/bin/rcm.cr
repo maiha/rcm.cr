@@ -1,6 +1,7 @@
 require "../rcm"
 require "../options"
 require "colorize"
+require "crt"
 
 class Rcm::Main
   include Options
@@ -22,6 +23,7 @@ class Rcm::Main
     Commands:
       nodes (file)        Print nodes info from file or server
       info <field>        Print given field from INFO for all nodes
+      ping                Ping to all nodes
       addslots <slots>    Add slots to the node
       meet <master>       Join the cluster on <master>
       replicate <master>  Configure node as replica of the <master>
@@ -56,6 +58,9 @@ class Rcm::Main
     when /^info$/i
       field = (args.empty? || args[0].empty?) ? "v,cnt,m,d" : args[0]
       Cluster::ShowInfos.new(client).show(STDOUT, field: field)
+
+    when /^ping$/i
+      Cluster::Ping.ping(client, interval: 1.second)
 
     when /^addslots$/i
       slot = Slot.parse(args.join(","))
