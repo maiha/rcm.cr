@@ -1,21 +1,20 @@
-class Rcm::Cluster::Ping::Watcher
+class Rcm::Cluster::Ping::Watcher(T)
   @redis : Redis?
 
-  def initialize(@node : NodeInfo, @factory : -> Redis, @ch : Channel::Unbuffered(Result))
+  def initialize(@ch : Channel::Unbuffered(T), @factory : -> Redis, @command : Proc(Redis, T), @failback : Proc(Exception, T))
   end
 
   def start(interval)
     spawn do
-      schedule_each(1.second) { ping }
+      schedule_each(interval) { process }
     end
   end
 
-  def ping
+  private def process
     establish_connection!
-    count = redis!.count!
-    @ch.send Result.new(@node, Time.now, count)
-  rescue
-    @ch.send Result.new(@node, Time.now, -1_i64)
+    @ch.send @command.call(redis!)
+  rescue err
+    @ch.send @failback.call(err)
     @redis.try(&.close)
     @redis = nil
   end

@@ -61,7 +61,7 @@ class Rcm::Main
       Cluster::ShowInfos.new(client).show(STDOUT, field: field)
 
     when /^ping$/i
-      Cluster::Ping.ping(client, interval: 1.second, crt: !nocrt)
+      Cluster::Ping.ping(client, crt: !nocrt)
 
     when /^addslots$/i
       slot = Slot.parse(args.join(","))

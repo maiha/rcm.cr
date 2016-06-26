@@ -1,44 +1,67 @@
 module Rcm::Cluster::Ping
-  def self.ping(client, interval : Time::Span = 1.second, crt : Bool = true)
-    Main.new(client, interval, crt: crt).run
+  def self.ping(client, ping_interval : Time::Span = 1.second, nodes_interval : Time::Span = 1.seconds, crt : Bool = true)
+    Main.new(client, ping_interval, nodes_interval, crt).run
   end
 
   class Main
     delegate nodes, to: @info
 
     MAX_VAL_SIZE = 256          # max terminal colum size we expect
-    
-    @watchers : Array(Watcher)
-    @count_ch : Channel::Unbuffered(Result)
-    @nodes_ch : Channel::Unbuffered(String)
-    @noded_counts : Hash(NodeInfo, Array(Int64))
 
-    def initialize(@client : Client, @interval : Time::Span, crt : Bool)
-      @info = @client.cluster_info
-      @count_ch  = Channel(Result).new
-      @nodes_ch  = Channel(String).new
-      @watchers = nodes.map{|n| Watcher.new(n, ->(){@client.new_redis(n)}, @count_ch)}
-      @noded_counts = Hash(NodeInfo, Array(Int64)).new
-      @show = crt ? Show::Crt.new : Show::IO.new
-      @time_body = MemoryIO.new
+    alias Nodes = String
+    
+    @ping_ch       : Channel::Unbuffered(Result)
+    @nodes_ch      : Channel::Unbuffered(Nodes)
+    @ping_watchers : Array(Watcher(Result))
+    @nodes_watcher : Watcher(Nodes)
+    @noded_counts  : Hash(NodeInfo, Array(Int64))
+
+    def initialize(@client : Client, @ping_interval : Time::Span, @nodes_interval : Time::Span, crt : Bool)
+      @info          = @client.cluster_info
+      @ping_ch       = Channel(Result).new
+      @nodes_ch      = Channel(Nodes).new
+      @ping_watchers = build_ping_watchers
+      @nodes_watcher = build_nodes_watcher
+      @noded_counts  = Hash(NodeInfo, Array(Int64)).new
+      @show          = crt ? Show::Crt.new : Show::IO.new
+      @time_body     = MemoryIO.new
     end
 
     def run
-      @watchers.each(&.start(@interval))
+      @ping_watchers.each(&.start(@ping_interval))     
+      @nodes_watcher.start(@nodes_interval)
       spawn { observe_channels }
       spawn { render }
       STDIN.gets
     end
 
+    private def build_nodes_watcher
+      Watcher(Nodes).new(@nodes_ch, new_redis_proc(nodes[0]),
+        ->(redis : Redis) { redis.nodes },
+        ->(e : Exception) { "" })
+    end
+
+    private def build_ping_watchers
+      nodes.map{|n|
+        Watcher(Result).new(@ping_ch, new_redis_proc(n),
+          ->(redis : Redis) { Result.new(n, redis.count!) },
+          ->(e : Exception) { Result.new(n, -1_i64) })
+      }
+    end
+
+    private def new_redis_proc(node : NodeInfo)
+      ->() { @client.new_redis(node) }
+    end
+
     private def observe_channels
-      receives = [@count_ch, @nodes_ch].map(&.receive_op)
+      receives = [@ping_ch, @nodes_ch].map(&.receive_op)
       loop {
         index, value = Channel.select(receives)
         case index
         when 0
           update_count(value.as(Result))
         when 1
-          update_nodes(value.as(String))
+          update_nodes(value.as(Nodes))
         else
           raise "[BUG] observe_channels got unexpected index(#{index})"
         end
@@ -46,8 +69,10 @@ module Rcm::Cluster::Ping
       }
     end
 
-    private def update_nodes(nodes : String)
-      @info = ClusterInfo.parse(nodes)
+    private def update_nodes(nodes : Nodes)
+      unless nodes.empty?
+        @info = ClusterInfo.parse(nodes)
+      end
     end
 
     private def update_count(result : Result)
@@ -55,7 +80,7 @@ module Rcm::Cluster::Ping
     end
 
     private def render
-      schedule_each(@interval) {
+      schedule_each(@ping_interval) {
         shrink_counts
         shrink_time_body
 
