@@ -62,8 +62,9 @@ module Rcm::Cluster::Ping
         @show.clear
         @show.head(Time.now.to_s)
         @show.print("", build_time_body)
-        nodes.each do |node|
-          key = build_key_for(node)
+        @info.each_nodes do |node|
+#          key = build_key_for(node)
+          key = build_typed_key(node)
           val = build_body_for(node)
           @show.print(key, val)
         end
@@ -79,6 +80,20 @@ module Rcm::Cluster::Ping
       a = counts_for(node)
       c = a.last { -1 }
       "#{node.addr}(#{c})"
+    end
+
+    private def build_typed_key(node)
+      c = counts_for(node).last { -1 }
+      if node.serving?
+        prefix = "[%-11s] " % node.slot
+        "#{prefix}#{node.addr}(#{c})"
+      elsif node.master?
+        prefix = " ( no slots ) "
+        "#{prefix}#{node.addr}(#{c})"
+      else
+        prefix = "    +slave    "
+        "#{prefix}#{node.addr}(#{c})"
+      end
     end
 
     private def build_body_for(node)
