@@ -86,4 +86,17 @@ describe Rcm::ClusterInfo do
       info.slave_deps.size.should eq(0)
     end
   end
+
+  describe "#each_nodes" do
+    it "iterates master and slaves in series" do
+      marks = [] of String
+
+      info = load_cluster_info("nodes/m3s3o1.nodes")
+      info.each_nodes do |node|
+        marks << node_mark(node)
+      end
+
+      marks.should eq(["M", "S", "M", "S", "M", "S", "-"])
+    end
+  end
 end

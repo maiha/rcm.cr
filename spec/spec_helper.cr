@@ -19,3 +19,13 @@ end
 def load_cluster_info(name)
   Rcm::ClusterInfo.parse(fixtures(name))
 end
+
+def node_mark(node : Rcm::NodeInfo)
+  if node.serving?
+    "M"
+  elsif node.master?
+    "-"
+  else
+    "S"
+  end
+end

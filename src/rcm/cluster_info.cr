@@ -68,7 +68,30 @@ module Rcm
         slaves = deps.fetch(master) {[] of NodeInfo}
         yield({master, slaves})
       end
-    end    
+    end
+
+    def each_nodes
+      shown = Set(NodeInfo).new
+
+      # first, process serving masters
+      each_serving_masters_with_slaves do |master, slaves|
+        yield master
+        shown.add(master)
+
+        # and then, process its slaves in series
+        slaves.each do |slave|
+          yield slave
+          shown.add(slave)
+        end
+      end
+
+      # finaly, process all rest nodes (dup is skipped by shown cache)
+      nodes.each do |node|
+        next if shown.includes?(node)
+        yield node
+        shown.add(node)
+      end
+    end
 
     def open_slots : Array(Int32)
       Slot::RANGE.to_a - slot2nodes.keys
