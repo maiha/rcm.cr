@@ -10,6 +10,7 @@ class Rcm::Main
   option port  : Int32 , "-p <port>", "Server port", 6379
   option pass  : String?, "-a <password>", "Password to use when connecting to the server", nil
   option yes   : Bool, "--yes", "Accept advise automatically", false
+  option nocrt : Bool, "--nocrt", "Use STDIO rather than experimental CRT", false
   option verbose : Bool, "-v", "Enable verbose output", false
   option help  : Bool  , "--help", "Output this help and exit", false
   
@@ -60,7 +61,7 @@ class Rcm::Main
       Cluster::ShowInfos.new(client).show(STDOUT, field: field)
 
     when /^ping$/i
-      Cluster::Ping.ping(client, interval: 1.second)
+      Cluster::Ping.ping(client, interval: 1.second, crt: !nocrt)
 
     when /^addslots$/i
       slot = Slot.parse(args.join(","))

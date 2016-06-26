@@ -1,39 +1,57 @@
 module Rcm::Cluster::Ping
-  def self.ping(client, interval : Time::Span = 1.second)
-    Main.new(client, interval).run
+  def self.ping(client, interval : Time::Span = 1.second, crt : Bool = true)
+    Main.new(client, interval, crt: crt).run
   end
 
   class Main
-    delegate nodes, to: info
+    delegate nodes, to: @info
 
     MAX_VAL_SIZE = 256          # max terminal colum size we expect
     
     @watchers : Array(Watcher)
-    @ch : Channel::Unbuffered(Result)
+    @count_ch : Channel::Unbuffered(Result)
+    @nodes_ch : Channel::Unbuffered(String)
     @noded_counts : Hash(NodeInfo, Array(Int64))
 
-    def initialize(@client : Client, @interval : Time::Span)
-      @ch  = Channel(Result).new
-      @watchers = nodes.map{|n| Watcher.new(n, ->(){@client.new_redis(n)}, @ch)}
+    def initialize(@client : Client, @interval : Time::Span, crt : Bool)
+      @info = @client.cluster_info
+      @count_ch  = Channel(Result).new
+      @nodes_ch  = Channel(String).new
+      @watchers = nodes.map{|n| Watcher.new(n, ->(){@client.new_redis(n)}, @count_ch)}
       @noded_counts = Hash(NodeInfo, Array(Int64)).new
-      # @show = Show::Crt.new
-      @show = Show::IO.new
+      @show = crt ? Show::Crt.new : Show::IO.new
       @time_body = MemoryIO.new
     end
 
     def run
       @watchers.each(&.start(@interval))
-      spawn { update }
+      spawn { observe_channels }
       spawn { render }
       STDIN.gets
     end
 
-    private def update
+    private def observe_channels
+      receives = [@count_ch, @nodes_ch].map(&.receive_op)
       loop {
-        result = @ch.receive
-        counts_for(result.node) << result.count
-        sleep 0
+        index, value = Channel.select(receives)
+        case index
+        when 0
+          update_count(value.as(Result))
+        when 1
+          update_nodes(value.as(String))
+        else
+          raise "[BUG] observe_channels got unexpected index(#{index})"
+        end
+        # sleep 0 # Comment out anyway. I don't know why this is bad
       }
+    end
+
+    private def update_nodes(nodes : String)
+      @info = ClusterInfo.parse(nodes)
+    end
+
+    private def update_count(result : Result)
+      counts_for(result.node) << result.count
     end
 
     private def render
@@ -86,10 +104,6 @@ module Rcm::Cluster::Ping
           end
         end
       }.join
-    end
-
-    private def info
-      @client.cluster_info
     end
 
     # shrink count buffer to MAX_VAL_SIZE
