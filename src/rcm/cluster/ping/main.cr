@@ -16,8 +16,8 @@ module Rcm::Cluster::Ping
       @ch  = Channel(Result).new
       @watchers = nodes.map{|n| Watcher.new(n, ->(){@client.new_redis(n)}, @ch)}
       @noded_counts = Hash(NodeInfo, Array(Int64)).new
-      @crt = Crt::Window.new
-      @show = Show::Crt.new(@crt)
+      # @show = Show::Crt.new
+      @show = Show::IO.new
       @time_body = MemoryIO.new
     end
 

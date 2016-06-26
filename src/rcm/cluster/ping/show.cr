@@ -1,17 +1,46 @@
 module Rcm::Cluster::Ping::Show
   module Core
-    abstract def clear : Nil
+    def clear
+    end
+
+    def refresh
+    end
+
     abstract def head(msg : String) : Nil
-    abstract def print(name : String, msg : String) : Nil
     abstract def tail(msg : String) : Nil
-    abstract def refresh : Nil
+    abstract def print(name : String, msg : String) : Nil
+  end
+
+  class IO
+    include Core
+
+    def initialize(@io : ::IO = STDOUT)
+    end
+
+    def head(msg : String)
+      @io.puts msg
+    end
+
+    def tail(msg : String)
+      @io.puts msg
+    end
+
+    def print(key : String, val : String)
+      @io.puts "#{key} #{val}"
+    end
+
+    def refresh
+      @io.flush
+    end
   end
 
   class Crt
     include Core
     @lines : Array(Tuple(String, String))
 
-    def initialize(@crt : Crt::Window)
+    getter crt
+    
+    def initialize(@crt : Crt::Window = Crt::Window.new)
       @lines = [] of Tuple(String, String)
     end
 
