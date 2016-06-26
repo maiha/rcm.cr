@@ -6,7 +6,7 @@ module Rcm::Cluster::Ping
   class Main
     delegate nodes, to: info
 
-    MAX_VAL_SIZE = 256          # max terminal col size we expect
+    MAX_VAL_SIZE = 256          # max terminal colum size we expect
     
     @watchers : Array(Watcher)
     @ch : Channel::Unbuffered(Result)
@@ -38,7 +38,8 @@ module Rcm::Cluster::Ping
 
     private def render
       schedule_each(@interval) {
-#        shrink_results
+        shrink_counts
+        shrink_time_body
 
         @show.clear
         @show.head(Time.now.to_s)
@@ -92,11 +93,20 @@ module Rcm::Cluster::Ping
     end
 
     # shrink count buffer to MAX_VAL_SIZE
-    private def shrink_results
+    private def shrink_counts
       return if @noded_counts.empty?
       return if @noded_counts.first[1].size < MAX_VAL_SIZE * 2
       @noded_counts.each do |(k,a)|
         a[0, MAX_VAL_SIZE] = [] of Int64
+      end
+    end
+
+    # shrink time_body to MAX_VAL_SIZE
+    private def shrink_time_body
+      if @time_body.size > MAX_VAL_SIZE * 2
+        buf = (@time_body.to_s)[MAX_VAL_SIZE .. -1]
+        @time_body = MemoryIO.new
+        @time_body << buf
       end
     end
 
@@ -114,12 +124,6 @@ module Rcm::Cluster::Ping
         @time_body << now.to_s("%M")[now.second - 4, 1]
       else
         @time_body << " "
-      end
-
-      if @time_body.size > MAX_VAL_SIZE * 2
-        buf = (@time_body.to_s)[MAX_VAL_SIZE .. -1]
-        @time_body = MemoryIO.new
-        @time_body << buf
       end
       @time_body.to_s
     end
