@@ -25,6 +25,7 @@ module Rcm::Watch
       @noded_counts   = Hash(NodeInfo, Array(Int64)).new
       @show           = crt ? Show::Crt.new : Show::IO.new
       @time_body      = MemoryIO.new
+      @lines_shrinked = false
     end
 
     def run
@@ -70,9 +71,10 @@ module Rcm::Watch
     end
 
     private def update_nodes(nodes : Nodes)
-      unless nodes.empty?
-        @info = ClusterInfo.parse(nodes)
-      end
+      old_cnt = @info.nodes.size
+      @info = ClusterInfo.parse(nodes) unless nodes.empty?
+      new_cnt = @info.nodes.size
+      @lines_shrinked = (new_cnt < old_cnt)
     end
 
     private def update_count(result : Result)
@@ -83,8 +85,12 @@ module Rcm::Watch
       schedule_each(@watch_interval) {
         shrink_counts
         shrink_time_body
+        
+        if @lines_shrinked
+          @lines_shrinked = false
+          @show.clear
+        end
 
-        @show.clear
         @show.head(Time.now.to_s)
         @show.print("", build_time_body)
         @info.each_nodes do |node|

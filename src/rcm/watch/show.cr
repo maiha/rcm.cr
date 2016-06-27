@@ -46,10 +46,10 @@ module Rcm::Watch::Show
 
     def clear
       @crt.clear
-      @lines = [] of Tuple(String, String)
     end
     
     def head(msg)
+      msg = "%-#{@crt.col}s" % msg
       @crt.print(0, 0, msg)
     end
 
@@ -64,6 +64,8 @@ module Rcm::Watch::Show
     def refresh
       draw_lines
       @crt.refresh
+      @crt.move(0, 0)
+      @lines = [] of Tuple(String, String)
     end
 
     private def draw_lines
