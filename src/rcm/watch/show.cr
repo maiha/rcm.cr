@@ -1,4 +1,4 @@
-module Rcm::Cluster::Ping::Show
+module Rcm::Watch::Show
   module Core
     def clear
     end

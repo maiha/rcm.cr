@@ -96,10 +96,10 @@ OK
 
 ## Usage (utility features)
 
-### ping (experimental)
+### watch (experimental)
 
 - provides continual monitoring using curses
-- ex) `rcm -p 7001 ping`
+- ex) `rcm -p 7001 watch`
 
 ```
 2016-06-27 09:54:36 +0900
@@ -144,7 +144,7 @@ OK
   - [x] Rebalance nodes
   - [ ] Rebalance slots
   - [ ] Bulkinsert on import
-  - [x] Ping monitoring
+  - [x] Watch monitoring
 - [ ] Debug
   - [ ] Scan slots
 

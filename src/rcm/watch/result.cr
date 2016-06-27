@@ -1,4 +1,4 @@
-module Rcm::Cluster::Ping
+module Rcm::Watch
   record Result,
     node : NodeInfo,
     count : Int64

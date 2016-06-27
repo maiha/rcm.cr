@@ -24,7 +24,7 @@ class Rcm::Main
     Commands:
       nodes (file)        Print nodes info from file or server
       info <field>        Print given field from INFO for all nodes
-      ping                Ping to all nodes
+      watch <sec1> <sec2> Monitor counts of cluster nodes
       addslots <slots>    Add slots to the node
       meet <master>       Join the cluster on <master>
       replicate <master>  Configure node as replica of the <master>
@@ -60,8 +60,10 @@ class Rcm::Main
       field = (args.empty? || args[0].empty?) ? "v,cnt,m,d" : args[0]
       Cluster::ShowInfos.new(client).show(STDOUT, field: field)
 
-    when /^ping$/i
-      Cluster::Ping.ping(client, crt: !nocrt)
+    when /^watch$/i
+      sec1 = args.shift { 1 }.to_i.seconds
+      sec2 = args.shift { 3 }.to_i.seconds
+      Watch.watch(client, crt: !nocrt, watch_interval: sec1, nodes_interval: sec2)
 
     when /^addslots$/i
       slot = Slot.parse(args.join(","))

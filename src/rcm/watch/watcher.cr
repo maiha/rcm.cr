@@ -1,4 +1,4 @@
-class Rcm::Cluster::Ping::Watcher(T)
+class Rcm::Watch::Watcher(T)
   @redis : Redis?
 
   def initialize(@ch : Channel::Unbuffered(T), @factory : -> Redis, @command : Proc(Redis, T), @failback : Proc(Exception, T))
