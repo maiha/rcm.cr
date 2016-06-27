@@ -3,6 +3,12 @@ module Rcm::Watch
     Main.new(client, watch_interval, nodes_interval, crt).run
   end
 
+  def self.die(error : Exception)
+    Crt.done
+    STDERR.puts error.to_s
+    exit 2
+  end
+
   class Main
     delegate nodes, to: @info
 
@@ -68,6 +74,8 @@ module Rcm::Watch
         end
         # sleep 0 # Comment out anyway. I don't know why this is bad
       }
+    rescue err
+      Watch.die(err)
     end
 
     private def update_nodes(nodes : Nodes)
@@ -101,6 +109,8 @@ module Rcm::Watch
         end
         @show.refresh
       }
+    rescue err
+      Watch.die(err)
     end
 
     private def counts_for(node : NodeInfo)

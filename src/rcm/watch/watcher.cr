@@ -14,9 +14,13 @@ class Rcm::Watch::Watcher(T)
     establish_connection!
     @ch.send @command.call(redis!)
   rescue err
-    @ch.send @failback.call(err)
-    @redis.try(&.close)
-    @redis = nil
+    begin
+      @ch.send @failback.call(err)
+      @redis.try(&.close)
+      @redis = nil
+    rescue err
+      Watch.die(err)
+    end
   end
 
   private def redis!
