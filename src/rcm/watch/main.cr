@@ -165,9 +165,9 @@ module Rcm::Watch
     # shrink count buffer to MAX_VAL_SIZE
     private def shrink_counts
       return if @noded_counts.empty?
-      return if @noded_counts.first[1].size < MAX_VAL_SIZE * 2
+      return if @noded_counts.first[1].size <= MAX_VAL_SIZE
       @noded_counts.each do |(k,a)|
-        a[0, MAX_VAL_SIZE] = [] of Int64
+        a.shift
       end
     end
 
