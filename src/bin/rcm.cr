@@ -28,6 +28,8 @@ class Rcm::Main
       addslots <slots>    Add slots to the node
       meet <master>       Join the cluster on <master>
       replicate <master>  Configure node as replica of the <master>
+      failover            Become master with agreement (slave only)
+      takeover            Become master without agreement (slave only)
       get <key>           Get specified data from the cluster
       set <key> <val>     Set specified data to the cluster
       import <tsv file>   Test data import from tsv file
@@ -83,6 +85,12 @@ class Rcm::Main
       node = info.find_node_by!(name)
       puts "REPLICATE #{node.addr}"
       puts redis.replicate(node.sha1)
+
+    when /^failover$/i
+      puts redis.failover
+
+    when /^takeover$/i
+      puts redis.takeover
 
     when /^get$/i
       key = args.shift { die "get expects <key>" }

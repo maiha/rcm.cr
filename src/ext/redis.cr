@@ -18,6 +18,14 @@ class Redis
       string_command(["CLUSTER", "REPLICATE", master])
     end
 
+    def failover
+      string_command(["CLUSTER", "FAILOVER"])
+    end
+
+    def takeover
+      string_command(["CLUSTER", "FAILOVER", "TAKEOVER"])
+    end
+
     def count! : Int64
       hash = info("Keyspace")
       case hash.fetch("db0") { "" }
