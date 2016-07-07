@@ -1,24 +1,33 @@
 module Rcm
   record Addr,
-    host : String,
-    port : Int32 do
+    host  : String,
+    port  : Int32,
+    cport : Int32 do
 
     DEFAULT_HOST = "127.0.0.1"
     DEFAULT_PORT = 6379
+    CLUSTER_PORT_INCR = 10000
 
     delegate size, to: to_s
 
     def self.parse(str : String)
-      host, port = str.split(":", 2)
-      host = "127.0.0.1" if host.to_s.empty? # sometimes Redis returns ":7001" for addr part
-      raise "port not found: `#{str}`" if port.to_s.empty?
-      begin
-        port = port.to_i
-      rescue err : ArgumentError
-        raise "port not converted: #{err} from `#{str}`"
+      case str
+      when /\A([^:]*):(\d+)@(\d+)\Z/ # busport format
+        host, port, cport = $1, $2, $3
+      when /\A([^:]*):(\d+)\Z/ # old format
+        host, port = $1, $2
+      when /:/ # port is not number
+        raise "port not found: `#{str}`"
+      else
+        raise "unsupported format for Addr: `#{str}`"
       end
 
-      new(host, port.as(Int32))
+      # sometimes Redis returns ":7001" for host part
+      host = "127.0.0.1" if host.to_s.empty? 
+      port = port.to_i
+      cport = cport ? cport.to_i : port + CLUSTER_PORT_INCR
+
+      new(host, port, cport)
     end
 
     def <=>(other)

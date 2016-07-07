@@ -10,7 +10,7 @@ record Rcm::NodeInfo,
   slot   : Rcm::Slot do
 
   def_equals_and_hash sha1
-  delegate host, port, to: addr
+  delegate host, port, cport, to: addr
   
   val master? = !! flags["master"]?
   val slave?  = !! flags["slave"]?

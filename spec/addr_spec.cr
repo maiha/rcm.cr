@@ -7,6 +7,12 @@ describe Rcm::Addr do
       addr.host.should eq("127.0.0.1")
     end
 
+    it "should complete busport when missing" do
+      addr = Rcm::Addr.parse(":7001")
+      addr.port.should eq(7001)
+      addr.cport.should eq(17001)
+    end
+
     it "should raise when port part is missing" do
       expect_raises(Exception, /port/) do
         addr = Rcm::Addr.parse("127.0.0.1:")
@@ -17,6 +23,13 @@ describe Rcm::Addr do
       expect_raises(Exception, /port/) do
         addr = Rcm::Addr.parse("127.0.0.1:abc")
       end
+    end
+
+    it "should parse bus-port format" do
+      addr = Rcm::Addr.parse("127.0.0.1:7001@7101")
+      addr.host.should eq("127.0.0.1")
+      addr.port.should eq(7001)
+      addr.cport.should eq(7101)
     end
   end
 

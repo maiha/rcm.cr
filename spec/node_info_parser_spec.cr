@@ -66,5 +66,15 @@ describe Rcm::NodeInfo do
         EOF
       end
     end
+
+    it "should parse bus-port format" do
+      node = Rcm::NodeInfo.parse <<-EOF
+        5ac5361 127.0.0.1:7001@7101 myself,master - 0 0 0 connected
+      EOF
+      node.sha1.should eq("5ac5361")
+      node.host.should eq("127.0.0.1")
+      node.port.should eq(7001)
+      node.cport.should eq(7101)
+    end
   end
 end
