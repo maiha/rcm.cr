@@ -128,6 +128,10 @@ OK
 % cp bin/rcm ~/bin/
 ```
 
+## Usage (as a crystal library)
+
+see `examples/*.cr`
+
 ## TODO
 
 - [ ] Dryrun
