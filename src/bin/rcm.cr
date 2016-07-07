@@ -22,6 +22,7 @@ class Rcm::Main
     Options:
 
     Commands:
+      status              Print cluster status
       nodes (file)        Print nodes info from file or server
       info <field>        Print given field from INFO for all nodes
       watch <sec1> <sec2> Monitor counts of cluster nodes
@@ -53,10 +54,12 @@ class Rcm::Main
     op = args.shift { die "command not found!" }
 
     case op
+    when /^status$/i
+      Cluster::ShowStatus.new(client.cluster_info, client.counts, verbose: verbose).show(STDOUT)
+
     when /^nodes$/i
       info = ClusterInfo.parse(args.any? ? safe{ ARGF.gets_to_end } : redis.nodes)
-      counts = Client.new(info, pass).counts
-      Cluster::ShowNodes.new(info, counts, verbose: verbose).show(STDOUT)
+      Cluster::ShowNodes.new(info, client.counts, verbose: verbose).show(STDOUT)
 
     when /^info$/i
       field = (args.empty? || args[0].empty?) ? "v,cnt,m,d" : args[0]

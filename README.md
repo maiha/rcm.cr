@@ -6,6 +6,26 @@ Redis Cluster Manager in Crystal
 
 ## Usage (information features)
 
+### status
+
+- summarize nodes status in the cluster
+
+```shell
+% rcm -p 7000 status
+[0-3000     ] master(127.0.0.1:7012) with 2 slaves
+[3001-6000  ] master(127.0.0.1:7001) with 1 slaves
+[6001-9000  ] master(127.0.0.1:7002) with 1 slaves
+[9001-12000 ] master(127.0.0.1:7003) with 1 slaves
+[12001-16383] master(127.0.0.1:7004) with 1 slaves
+
+% rcm -p 7000 status -v
+[0-3000     ] M(127.0.0.1:7012) S(127.0.0.1:7000) S(127.0.0.1:7014)
+[3001-6000  ] M(127.0.0.1:7001) S(127.0.0.1:7006) S(127.0.0.1:7008) S(127.0.0.1:7011)
+[6001-9000  ] M(127.0.0.1:7002) S(127.0.0.1:7007)
+[9001-12000 ] M(127.0.0.1:7003) S(127.0.0.1:7013)
+[12001-16383] M(127.0.0.1:7004) S(127.0.0.1:7009)
+```
+
 ### nodes
 
 - provides human-friendly output rather than `redis-cli`
