@@ -14,14 +14,14 @@ bin:
 	@mkdir -p bin
 
 rcm: src/bin/rcm.cr
-	crystal compile --release $^ -o bin/$@ ${LINK_FLAGS}
+	crystal build --release $^ -o bin/$@ ${LINK_FLAGS}
 
 spec:
 	crystal spec -v
 
 compile:
 	@for x in src/bin/*.cr ; do\
-	  crystal compile "$$x" -o /dev/null ;\
+	  crystal build "$$x" -o /dev/null ;\
 	done
 
 clean:
