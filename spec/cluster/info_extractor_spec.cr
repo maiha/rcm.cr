@@ -1,7 +1,7 @@
 require "./spec_helper"
 
-describe "Rcm::InfoExtractor.extract" do
-  info = Rcm::InfoExtractor.new(redis_info(fixtures("info.txt")))
+describe "Redis::Cluster::InfoExtractor.extract" do
+  info = Redis::Cluster::InfoExtractor.new(redis_info(fixtures("info.txt")))
 
   describe "(reserved words)" do
     it "version" do
@@ -29,7 +29,7 @@ describe "Rcm::InfoExtractor.extract" do
 
   describe "(no candidates)" do
     it "returns nil" do
-      info.extract("xyz").should be_a(Rcm::InfoExtractor::NotFound)
+      info.extract("xyz").should be_a(Redis::Cluster::InfoExtractor::NotFound)
     end
   end
 

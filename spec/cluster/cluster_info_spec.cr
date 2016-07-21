@@ -1,14 +1,14 @@
 require "./spec_helper"
 
-describe Rcm::ClusterInfo do
-  info = Rcm::ClusterInfo.parse <<-EOF
+describe Redis::Cluster::ClusterInfo do
+  info = Redis::Cluster::ClusterInfo.parse <<-EOF
     b3b2965 127.0.0.1:7001 myself,master - 0 0 2 connected 0-9990
     12acff8 127.0.0.1:7002 master - 0 1466253316377 1 connected 10000-16383
     bb6050b 127.0.0.1:7003 slave b3b2965 0 1466253315354 2 connected
     EOF
 
   describe "#active?" do
-    zero = Rcm::Counts.new{ 0_i64 }
+    zero = Redis::Cluster::Counts.new{ 0_i64 }
 
     it "return true when count = 0" do
       node = info.nodes.first
@@ -17,7 +17,7 @@ describe Rcm::ClusterInfo do
 
     it "return true when count is nil" do
       node = info.nodes.first
-      info.active?(node, Rcm::Counts.new).should eq false
+      info.active?(node, Redis::Cluster::Counts.new).should eq false
     end
   end
 
@@ -35,7 +35,7 @@ describe Rcm::ClusterInfo do
     end
 
     it "postfixed addr" do
-      expect_raises(Rcm::ClusterInfo::NodeNotFound) do
+      expect_raises(Redis::Cluster::ClusterInfo::NodeNotFound) do
         info.find_node_by!("0.0.1:7001")
       end
     end
@@ -45,19 +45,19 @@ describe Rcm::ClusterInfo do
     end
 
     it "port without colon is considered as addr" do
-      expect_raises(Rcm::ClusterInfo::NodeNotFound) do
+      expect_raises(Redis::Cluster::ClusterInfo::NodeNotFound) do
         info.find_node_by!("7003")
       end
     end
 
     it "raises NodeNotUniq when multiple nodes have same sha1" do
-      expect_raises(Rcm::ClusterInfo::NodeNotUniq) do
+      expect_raises(Redis::Cluster::ClusterInfo::NodeNotUniq) do
         info.find_node_by!("b")
       end
     end
 
     it "raises NodeNotUniq when multiple nodes have same host" do
-      expect_raises(Rcm::ClusterInfo::NodeNotUniq) do
+      expect_raises(Redis::Cluster::ClusterInfo::NodeNotUniq) do
         info.find_node_by!("127.0")
       end
     end
@@ -77,7 +77,7 @@ describe Rcm::ClusterInfo do
 
   describe "(broken data)" do
     it "works when slave has a missing master reference" do
-      info = Rcm::ClusterInfo.parse <<-EOF
+      info = Redis::Cluster::ClusterInfo.parse <<-EOF
         b3b2965 127.0.0.1:7001 myself,master - 0 0 2 connected 0-9990
         bb6050b 127.0.0.1:7003 slave xyz 0 1466253315354 2 connected
       EOF

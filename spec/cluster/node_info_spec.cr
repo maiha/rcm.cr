@@ -1,9 +1,9 @@
 require "./spec_helper"
 
-describe Rcm::NodeInfo do
+describe Redis::Cluster::NodeInfo do
   describe ".parse" do
     it "works for empty inputs" do
-      Array(Rcm::NodeInfo).parse("")
+      Array(Redis::Cluster::NodeInfo).parse("")
     end
 
     it "builds nodes" do
@@ -19,7 +19,7 @@ describe Rcm::NodeInfo do
       053dd7389dc7e1ed897304518997e80a99f2896b 127.0.0.1:7003 master - 0 1466124472808 3 connected 10923-16383
       EOF
 
-      nodes = Array(Rcm::NodeInfo).parse(ret)
+      nodes = Array(Redis::Cluster::NodeInfo).parse(ret)
       nodes.map(&.addr.to_s).should eq(["127.0.0.1:7001", "127.0.0.1:7002", "127.0.0.1:7003", "127.0.0.1:7004", "127.0.0.1:7005", "127.0.0.1:7006", "127.0.0.1:7007", "127.0.0.1:7008", "127.0.0.1:7009"])
       nodes.map(&.port).should eq([7001, 7002, 7003, 7004, 7005, 7006, 7007, 7008, 7009])
       nodes.map(&.role).should eq(["slave", "master", "master", "slave,fail", "slave", "slave", "master", "master", "master"])
