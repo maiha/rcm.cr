@@ -1,4 +1,4 @@
-module Rcm
+module Redis::Cluster
   class Slot
     FIRST = 0
     LAST  = 16383

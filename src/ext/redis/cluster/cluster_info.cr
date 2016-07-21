@@ -1,4 +1,4 @@
-module Rcm
+module Redis::Cluster
   class ClusterInfo
     def self.parse(nodes_str) : ClusterInfo
       ClusterInfo.new(Array(Rcm::NodeInfo).parse(nodes_str))

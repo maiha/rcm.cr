@@ -1,4 +1,4 @@
-record Rcm::NodeInfo,
+record Redis::Cluster::NodeInfo,
   sha1   : String,
   addr   : Addr,
   flags  : String,

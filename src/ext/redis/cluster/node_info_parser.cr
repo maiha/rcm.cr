@@ -1,5 +1,5 @@
-struct Rcm::NodeInfo
-  def self.parse(line : String) : Rcm::NodeInfo
+struct Redis::Cluster::NodeInfo
+  def self.parse(line : String) : Redis::Cluster::NodeInfo
     # 2afb4da9d68942a32676ca19e77492c4ba921d0f 127.0.0.1:7001 myself,master - 0 0 1 connected 0-5460
     # 56f1954c1fa7b63fb631a872480dbf0a93bc8a9a 127.0.0.1:7004 slave 2afb4da9d68942a32676ca19e77492c4ba921d0f 0 1466089461937 1 connected
     ary = line.split
@@ -25,14 +25,14 @@ struct Rcm::NodeInfo
 
     addr = Rcm::Addr.parse(addr)
     
-    return Rcm::NodeInfo.new(sha1: sha1, addr: addr, flags: flags, master: master, sent: sent.to_i64, recv: recv.to_i64, epoch: epoch.to_i64, status: status, slot: slot)
+    return Redis::Cluster::NodeInfo.new(sha1: sha1, addr: addr, flags: flags, master: master, sent: sent.to_i64, recv: recv.to_i64, epoch: epoch.to_i64, status: status, slot: slot)
   end
 end
 
-def Array(Rcm::NodeInfo).parse(buf : String) : Array(Rcm::NodeInfo)
-  nodes = [] of Rcm::NodeInfo
+def Array(Redis::Cluster::NodeInfo).parse(buf : String) : Array(Redis::Cluster::NodeInfo)
+  nodes = [] of Redis::Cluster::NodeInfo
   buf.each_line do |line|
-    nodes << Rcm::NodeInfo.parse(line.chomp)
+    nodes << Redis::Cluster::NodeInfo.parse(line.chomp)
   end
   return nodes.sort_by(&.addr)
 end

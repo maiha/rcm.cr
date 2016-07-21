@@ -17,7 +17,7 @@ boots = ARGV.shift { usage.call }
 total = ARGV.shift { usage.call }.to_i
 
 begin
-  client = Rcm::Client.new(boots)
+  client = Redis::Cluster.new(boots)
   report = Periodical.reporter(true, 3.seconds, ->{total})
 
   (1..total).each do |i|

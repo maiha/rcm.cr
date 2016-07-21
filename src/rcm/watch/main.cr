@@ -20,7 +20,7 @@ module Rcm::Watch
     @nodes_ch       : Channel::Unbuffered(Nodes)
     @count_watchers : Array(Watcher(Result))
     @nodes_watcher  : Watcher(Nodes)
-    @noded_counts   : Hash(NodeInfo, Array(Int64))
+    @noded_counts   : Hash(Redis::Cluster::NodeInfo, Array(Int64))
 
     def initialize(@client : Client, @watch_interval : Time::Span, @nodes_interval : Time::Span, crt : Bool)
       @info           = @client.cluster_info
@@ -28,7 +28,7 @@ module Rcm::Watch
       @nodes_ch       = Channel(Nodes).new
       @count_watchers = build_watch_watchers
       @nodes_watcher  = build_nodes_watcher
-      @noded_counts   = Hash(NodeInfo, Array(Int64)).new
+      @noded_counts   = Hash(Redis::Cluster::NodeInfo, Array(Int64)).new
       @show           = crt ? Show::Crt.new : Show::IO.new
       @time_body      = MemoryIO.new
       @lines_shrinked = false
@@ -56,7 +56,7 @@ module Rcm::Watch
       }
     end
 
-    private def new_redis_proc(node : NodeInfo)
+    private def new_redis_proc(node : Redis::Cluster::NodeInfo)
       ->() { @client.new_redis(node) }
     end
 
@@ -113,7 +113,7 @@ module Rcm::Watch
       Watch.die(err)
     end
 
-    private def counts_for(node : NodeInfo)
+    private def counts_for(node : Redis::Cluster::NodeInfo)
       @noded_counts[node] ||= [] of Int64
     end
 

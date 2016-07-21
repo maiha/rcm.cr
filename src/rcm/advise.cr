@@ -1,7 +1,7 @@
 module Rcm::Advise
   record Replicate,
-    master : NodeInfo,
-    slave : NodeInfo do
+    master : Redis::Cluster::NodeInfo,
+    slave : Redis::Cluster::NodeInfo do
 
     def cmd
       "rcm #{slave.addr.connection_string} REPLICATE #{master.addr}"

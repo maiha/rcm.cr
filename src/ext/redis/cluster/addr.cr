@@ -1,4 +1,4 @@
-module Rcm
+module Redis::Cluster
   record Addr,
     host  : String,
     port  : Int32,

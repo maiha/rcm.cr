@@ -1,4 +1,4 @@
-module Rcm
+module Redis::Cluster
   class InfoExtractor
     def self.extract(hash, field)
       InfoExtractor.new(hash).extract(field)

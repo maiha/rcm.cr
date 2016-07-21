@@ -109,7 +109,7 @@ class Rcm::Main
       name = args.shift { die "import expects <tsv-file>" }
       file = safe{ File.open(name) }
       info = ClusterInfo.parse(redis.nodes)
-      step = Cluster::StepImport.new(Client.new(info, pass))
+      step = Cluster::StepImport.new(Redis::Cluster.new(info, pass))
       step.import(file, delimiter: "\t", progress: true, count: 1000)
       
     when /^advise$/i
@@ -141,8 +141,9 @@ class Rcm::Main
     @redis ||= Redis.new(host, port, pass)
   end
 
+  @client : Redis::Cluster::Client?
   private def client
-    @client ||= Client.new(ClusterInfo.parse(redis.nodes), pass)
+    (@client ||= Redis::Cluster.new(Redis::Cluster::ClusterInfo.parse(redis.nodes), pass)).not_nil!
   end
   
   macro safe(klass)

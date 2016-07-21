@@ -5,7 +5,7 @@ require "./lib/**"
 require "./ext/**"
 
 module Rcm
-  alias Counts = Hash(NodeInfo, Int64)
+  include Redis::Cluster
 end
 
 require "./rcm/**"

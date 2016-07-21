@@ -1,4 +1,4 @@
-module Rcm::Commands
+module Redis::Cluster::Commands
   abstract def redis(key : String) : Redis
 
   def get(key)
