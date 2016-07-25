@@ -70,6 +70,20 @@ f0da61 [127.0.0.1:7002]  role(master), cnt(8751), days(0)
 
 - NOTICE: This sends `INFO` to all nodes.
 
+
+## Usage (cluster feature)
+
+### add slots & meet
+
+```shell
+% rcm -p 7001 addslots -5000       # means 0-5000
+% rcm -p 7002 addslots 5001-10000
+% rcm -p 7003 addslots 10001-      # means 10001..16383
+
+% rcm -p 7002 meet 127.0.0.1:7001
+% rcm -p 7003 meet 127.0.0.1:7001
+```
+
 ## Usage (replication features)
 
 ### become slave

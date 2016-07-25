@@ -55,20 +55,20 @@ class Rcm::Main
 
     case op
     when /^status$/i
-      Cluster::ShowStatus.new(client.cluster_info, client.counts, verbose: verbose).show(STDOUT)
+      Cluster::ShowStatus.new(cluster.cluster_info, cluster.counts, verbose: verbose).show(STDOUT)
 
     when /^nodes$/i
       info = ClusterInfo.parse(args.any? ? safe{ ARGF.gets_to_end } : redis.nodes)
-      Cluster::ShowNodes.new(info, client.counts, verbose: verbose).show(STDOUT)
+      Cluster::ShowNodes.new(info, cluster.counts, verbose: verbose).show(STDOUT)
 
     when /^info$/i
       field = (args.empty? || args[0].empty?) ? "v,cnt,m,d" : args[0]
-      Cluster::ShowInfos.new(client).show(STDOUT, field: field)
+      Cluster::ShowInfos.new(cluster).show(STDOUT, field: field)
 
     when /^watch$/i
       sec1 = args.shift { 1 }.to_i.seconds
       sec2 = args.shift { 3 }.to_i.seconds
-      Watch.watch(client, crt: !nocrt, watch_interval: sec1, nodes_interval: sec2)
+      Watch.watch(cluster, crt: !nocrt, watch_interval: sec1, nodes_interval: sec2)
 
     when /^addslots$/i
       slot = Slot.parse(args.join(","))
@@ -97,23 +97,22 @@ class Rcm::Main
 
     when /^get$/i
       key = args.shift { die "get expects <key>" }
-      val = client.get(key)
+      val = cluster.get(key)
       puts val.nil? ? "(nil)" : val.inspect
 
     when /^set$/i
       key = args.shift { die "set expects <key> <val>" }
       val = args.shift { die "get expects <key> <val>" }
-      client.set(key, val)
+      cluster.set(key, val)
 
     when /^import$/i
       name = args.shift { die "import expects <tsv-file>" }
       file = safe{ File.open(name) }
-      info = ClusterInfo.parse(redis.nodes)
-      step = Cluster::StepImport.new(Redis::Cluster.new(info, pass))
+      step = Cluster::StepImport.new(cluster)
       step.import(file, delimiter: "\t", progress: true, count: 1000)
       
     when /^advise$/i
-      replica = Advise::BetterReplication.new(client.cluster_info, client.counts)
+      replica = Advise::BetterReplication.new(cluster.cluster_info, cluster.counts)
       if replica.advise?
         if yes
           puts "#{Time.now}: BetterReplication: #{replica.impact}"
@@ -141,9 +140,9 @@ class Rcm::Main
     @redis ||= Redis.new(host, port, pass)
   end
 
-  @client : Redis::Cluster::Client?
-  private def client
-    (@client ||= Redis::Cluster.new(Redis::Cluster::ClusterInfo.parse(redis.nodes), pass)).not_nil!
+#  @cluster : Redis::Cluster::Client?
+  private def cluster
+    @cluster ||= Redis::Cluster.new("#{host}:#{port}", pass)
   end
   
   macro safe(klass)

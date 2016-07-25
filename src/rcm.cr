@@ -1,11 +1,7 @@
-require "redis"
-require "crc16"
-require "./macros"
-require "./lib/**"
-require "./ext/**"
+require "redis-cluster"
+require "./lib/*"
+require "./rcm/**"
 
 module Rcm
   include Redis::Cluster
 end
-
-require "./rcm/**"

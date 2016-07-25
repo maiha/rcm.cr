@@ -57,7 +57,7 @@ module Rcm::Watch
     end
 
     private def new_redis_proc(node : Redis::Cluster::NodeInfo)
-      ->() { @client.new_redis(node) }
+      ->() { @client.new_redis(node.host, node.port) }
     end
 
     private def observe_channels
