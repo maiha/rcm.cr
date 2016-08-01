@@ -10,6 +10,7 @@ class Rcm::Main
   option port  : Int32 , "-p <port>", "Server port", 6379
   option pass  : String?, "-a <password>", "Password to use when connecting to the server", nil
   option yes   : Bool, "--yes", "Accept advise automatically", false
+  option nop   : Bool, "-n", "Print the commands that would be executed", false
   option nocrt : Bool, "--nocrt", "Use STDIO rather than experimental CRT", false
   option verbose : Bool, "-v", "Enable verbose output", false
   option help  : Bool  , "--help", "Output this help and exit", false
@@ -26,6 +27,7 @@ class Rcm::Main
       nodes (file)        Print nodes info from file or server
       info <field>        Print given field from INFO for all nodes
       watch <sec1> <sec2> Monitor counts of cluster nodes
+      create <addr1> ...  Create cluster
       addslots <slots>    Add slots to the node
       meet <master>       Join the cluster on <master>
       replicate <master>  Configure node as replica of the <master>
@@ -39,6 +41,7 @@ class Rcm::Main
     Example:
       #{$0} nodes
       #{$0} info redis_version
+      #{$0} create 192.168.0.1:7001 192.168.0.2:7001 ...
       #{$0} addslots 0-100            # or "0,1,2", "10000-"
       #{$0} meet 127.0.0.1:7001       # or shortly "meet :7001"
       #{$0} replicate 127.0.0.1:7001  # or shortly "replicate :7001"
@@ -69,6 +72,15 @@ class Rcm::Main
       sec1 = args.shift { 1 }.to_i.seconds
       sec2 = args.shift { 3 }.to_i.seconds
       Watch.watch(cluster, crt: !nocrt, watch_interval: sec1, nodes_interval: sec2)
+
+    when /^create$/i
+      die "create expects <node...> # ex. 'create 192.168.0.1:7001 192.168.0.2:7002'" if args.empty?
+      create = Create.new(args)
+      if nop
+        create.dryrun(STDOUT)
+      else
+        create.execute(pass)
+      end
 
     when /^addslots$/i
       slot = Slot.parse(args.join(","))

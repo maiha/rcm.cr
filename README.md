@@ -73,6 +73,13 @@ f0da61 [127.0.0.1:7002]  role(master), cnt(8751), days(0)
 
 ## Usage (cluster feature)
 
+### create cluster
+
+```shell
+% rcm create 192.168.0.1:7001 192.168.0.2:7002 -n  # dryrun
+% rcm create 192.168.0.1:7001 192.168.0.2:7002
+```
+
 ### add slots & meet
 
 ```shell
@@ -178,7 +185,7 @@ see `examples/*.cr`
   - [x] Rebalance nodes
   - [ ] Rebalance slots
 - [ ] Utils
-  - [ ] Create cluster
+  - [x] Create cluster
   - [x] Rebalance nodes
   - [ ] Rebalance slots
   - [ ] Bulkinsert on import
