@@ -149,7 +149,7 @@ class Rcm::Main
   end
 
   private def redis
-    @redis ||= Redis.new(host, port, pass)
+    @redis ||= Redis.new(host: host, port: port, password: pass)
   end
 
 #  @cluster : Redis::Cluster::Client?
