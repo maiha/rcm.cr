@@ -6,7 +6,7 @@ class Rcm::Create
 
   property commands
 
-  def initialize(nodes : Array(String))
+  def initialize(nodes : Array(String), @pass : String? = nil)
     raise "nodes not found" if nodes.empty?
     @addrs = nodes.map{|s| Addr.parse(s)}
     @leader = @addrs.first
@@ -20,8 +20,8 @@ class Rcm::Create
     each(&.dryrun(io))
   end
 
-  def execute(pass : String? = nil)
-    cmd = commands.map(&.command(pass)).join(" && ")
+  def execute
+    cmd = commands.map(&.command).join(" && ")
     system(cmd)
   end
 
@@ -35,7 +35,7 @@ class Rcm::Create
   private def build_meets
     @addrs.each_with_index do |addr, i|
       next if addr == @leader
-      commands << Rcm::Command::Meet.new(addr, @leader)
+      commands << Rcm::Command::Meet.new(addr, @leader, @pass)
     end
   end
 
@@ -44,7 +44,7 @@ class Rcm::Create
     @masters.each_with_index do |addr, i|
       head = size * i
       tail = [size * (i + 1) - 1, Slot::LAST].min
-      commands << Rcm::Command::Addslots.new(addr, "#{head}-#{tail}")
+      commands << Rcm::Command::Addslots.new(addr, "#{head}-#{tail}", @pass)
     end
   end
 
@@ -53,7 +53,7 @@ class Rcm::Create
     unbound.each_with_index do |addr, i|
       margin = width_for(addr) - depth_for(addr)
       master = @masters[(@masters.size + margin) % @masters.size]
-      commands << Rcm::Command::Replicate.new(addr, master)
+      commands << Rcm::Command::Replicate.new(addr, master, @pass)
     end
   end
 

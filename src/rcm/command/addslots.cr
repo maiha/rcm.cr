@@ -1,7 +1,8 @@
 module Rcm::Command
   record Addslots,
     addr : Addr,
-    slot : String do
+    slot : String,
+    pass : String? = nil do
     include Rcm::Command
 
     private def opts

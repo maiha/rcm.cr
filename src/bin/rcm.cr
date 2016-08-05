@@ -76,11 +76,11 @@ class Rcm::Main
 
     when /^create$/i
       die "create expects <node...> # ex. 'create 192.168.0.1:7001 192.168.0.2:7002'" if args.empty?
-      create = Create.new(args)
+      create = Create.new(args, pass: pass)
       if nop
         create.dryrun(STDOUT)
       else
-        create.execute(pass)
+        create.execute
       end
 
     when /^addslots$/i

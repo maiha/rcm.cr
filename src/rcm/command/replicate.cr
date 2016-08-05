@@ -1,7 +1,8 @@
 module Rcm::Command
   record Replicate,
     addr : Addr,
-    dst : Addr do
+    dst : Addr,
+    pass : String? = nil do
     include Rcm::Command
 
     private def opts

@@ -1,23 +1,23 @@
 module Rcm::Command
+  abstract def pass : String?
   abstract def addr : Addr
   abstract def opts : String
   delegate host, port, to: addr
 
-  protected def cs
-    addr.connection_string
-  end
-
   def dryrun(io : IO)
-    io << "rcm #{cs} " << opts << "\n"
+    io << command << "\n"
   end
 
-  def command(pass : String? = nil)
-    auth = pass ? "-a '#{pass}'" : ""
-    return "rcm #{auth} #{cs} #{opts}"
+  def command
+    args = %w( rcm )
+    args << "-a '#{pass}'" if pass
+    args << addr.connection_string
+    args << opts
+    return args.join(" ")
   end
 
-  def execute(pass : String? = nil)
-    system(command(pass))
+  def execute
+    system(command)
   end
 
   def inspect(io : IO)
