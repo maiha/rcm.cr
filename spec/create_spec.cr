@@ -12,6 +12,10 @@ private def meet(src, dst, pass = nil)
   Rcm::Command::Meet.new(addr(src), addr(dst), pass)
 end
 
+private def wait(sec)
+  Rcm::Command::Wait.new(sec)
+end
+
 private def replicate(src, dst, pass = nil)
   Rcm::Command::Replicate.new(addr(src), addr(dst), pass)
 end
@@ -26,6 +30,7 @@ describe Rcm::Create do
       rcm -h '192.168.0.2' -p 7001 meet '192.168.0.1:7001'
       rcm -h '192.168.0.1' -p 7001 addslots '0-8191'
       rcm -h '192.168.0.2' -p 7001 addslots '8192-16383'
+      sleep 1.0
       rcm -h '192.168.0.1' -p 7002 replicate '192.168.0.2:7001'
 
       EOF
@@ -40,6 +45,7 @@ describe Rcm::Create do
       rcm -a 'secret' -h '192.168.0.2' -p 7001 meet '192.168.0.1:7001'
       rcm -a 'secret' -h '192.168.0.1' -p 7001 addslots '0-8191'
       rcm -a 'secret' -h '192.168.0.2' -p 7001 addslots '8192-16383'
+      sleep 1.0
       rcm -a 'secret' -h '192.168.0.1' -p 7002 replicate '192.168.0.2:7001'
 
       EOF
@@ -103,6 +109,8 @@ describe Rcm::Create do
       addslots("192.168.0.3:7001", "6554-9830"),
       addslots("192.168.0.4:7001", "9831-13107"),
       addslots("192.168.0.5:7001", "13108-16383"),
+
+      wait(1.0),
 
       replicate("192.168.0.1:7002", "192.168.0.5:7001"),
       replicate("192.168.0.1:7003", "192.168.0.4:7001"),

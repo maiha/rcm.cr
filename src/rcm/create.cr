@@ -1,12 +1,12 @@
 class Rcm::Create
-  @commands : Array(Rcm::Command) = [] of Rcm::Command
+  @commands : Array(Rcm::Executable) = [] of Rcm::Executable
   @addrs    : Array(Addr) = [] of Addr
   @masters  : Array(Addr) = [] of Addr
   @leader   : Addr
 
   property commands
 
-  def initialize(nodes : Array(String), @pass : String? = nil)
+  def initialize(nodes : Array(String), @pass : String? = nil, @wait : Float64 = 1.0)
     raise "nodes not found" if nodes.empty?
     @addrs = nodes.map{|s| Addr.parse(s)}
     @leader = @addrs.first
@@ -50,6 +50,8 @@ class Rcm::Create
 
   private def build_replicates
     unbound = @addrs - @masters
+    commands << Rcm::Command::Wait.new(@wait) if unbound.any? && @wait > 0
+    
     unbound.each_with_index do |addr, i|
       margin = width_for(addr) - depth_for(addr)
       master = @masters[(@masters.size + margin) % @masters.size]
