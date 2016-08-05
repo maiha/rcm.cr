@@ -103,6 +103,11 @@ module Options
     exit -1
   end
 
+  protected def quit(message : String)
+    STDOUT.puts message
+    exit 0
+  end
+
   # broken
   protected def argf_read : Bytes
     dst = MemoryIO.new

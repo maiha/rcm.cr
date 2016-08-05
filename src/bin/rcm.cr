@@ -6,6 +6,8 @@ require "crt"
 class Rcm::Main
   include Options
 
+  VERSION = "0.2.1"
+
   option host  : String, "-h <hostname>", "Server hostname", "127.0.0.1"
   option port  : Int32 , "-p <port>", "Server port", 6379
   option pass  : String?, "-a <password>", "Password to use when connecting to the server", nil
@@ -13,10 +15,11 @@ class Rcm::Main
   option nop   : Bool, "-n", "Print the commands that would be executed", false
   option nocrt : Bool, "--nocrt", "Use STDIO rather than experimental CRT", false
   option verbose : Bool, "-v", "Enable verbose output", false
+  option version : Bool, "--version", "Print the version and exit", false
   option help  : Bool  , "--help", "Output this help and exit", false
   
   usage <<-EOF
-    #{$0} version 0.2.1
+    #{$0} version #{VERSION}
 
     Usage: #{$0} <commands>
 
@@ -49,10 +52,8 @@ class Rcm::Main
 
   def run
     args                        # kick parse!
-    if help
-      STDERR.puts usage
-      exit 0
-    end
+    quit(usage) if help
+    quit("#{$0} #{VERSION}") if version
 
     op = args.shift { die "command not found!" }
 
