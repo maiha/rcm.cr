@@ -78,7 +78,10 @@ f0da61 [127.0.0.1:7002]  role(master), cnt(8751), days(0)
 ```shell
 % rcm create 192.168.0.1:7001 192.168.0.2:7002 -n  # dryrun
 % rcm create 192.168.0.1:7001 192.168.0.2:7002
+% rcm create --masters 5 192.168.0.1:7001 192.168.0.2:7002 ...
 ```
+- "--masters NUM" controls the number of masters
+- "--masters 0" works for just meet all together
 
 ### add slots & meet
 

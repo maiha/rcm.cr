@@ -14,6 +14,7 @@ class Rcm::Main
   option yes   : Bool, "--yes", "Accept advise automatically", false
   option nop   : Bool, "-n", "Print the commands that would be executed", false
   option nocrt : Bool, "--nocrt", "Use STDIO rather than experimental CRT", false
+  option masters : Int32? , "--masters <num>", "[create only] Master num", nil
   option verbose : Bool, "-v", "Enable verbose output", false
   option version : Bool, "--version", "Print the version and exit", false
   option help  : Bool  , "--help", "Output this help and exit", false
@@ -44,7 +45,7 @@ class Rcm::Main
     Example:
       #{$0} nodes
       #{$0} info redis_version
-      #{$0} create 192.168.0.1:7001 192.168.0.2:7001 ...
+      #{$0} create 192.168.0.1:7001 192.168.0.2:7001 ... --masters 3
       #{$0} addslots 0-100            # or "0,1,2", "10000-"
       #{$0} meet 127.0.0.1:7001       # or shortly "meet :7001"
       #{$0} replicate 127.0.0.1:7001  # or shortly "replicate :7001"
@@ -76,7 +77,7 @@ class Rcm::Main
 
     when /^create$/i
       die "create expects <node...> # ex. 'create 192.168.0.1:7001 192.168.0.2:7002'" if args.empty?
-      create = Create.new(args, pass: pass)
+      create = Create.new(args, pass: pass, masters: masters)
       if nop
         create.dryrun(STDOUT)
       else

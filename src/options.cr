@@ -31,7 +31,7 @@ module Options
       {% if long.stringify =~ /[\s=]/ %}
         {% if name.type.stringify == "Int64" %}
           parser.on({{long}}, "{{desc.id}} (default: {{default.id}}).") {|x| self.{{name.var}} = x.to_i64}
-        {% elsif name.type.stringify == "Int32" %}
+        {% elsif name.type.stringify.starts_with?("Int32") %}
           parser.on({{long}}, "{{desc.id}} (default: {{default.id}}).") {|x| self.{{name.var}} = x.to_i32}
         {% elsif name.type.stringify == "Int16" %}
           parser.on({{long}}, "{{desc.id}} (default: {{default.id}}).") {|x| self.{{name.var}} = x.to_i16}
