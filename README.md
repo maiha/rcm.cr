@@ -82,6 +82,7 @@ f0da61 [127.0.0.1:7002]  role(master), cnt(8751), days(0)
 ```
 - "--masters NUM" controls the number of masters
 - "--masters 0" works for just meet all together
+- hosts count is used for masters in default
 
 ### add slots & meet
 

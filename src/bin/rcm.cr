@@ -6,7 +6,7 @@ require "crt"
 class Rcm::Main
   include Options
 
-  VERSION = "0.2.1"
+  VERSION = "0.3.0"
 
   option host  : String, "-h <hostname>", "Server hostname", "127.0.0.1"
   option port  : Int32 , "-p <port>", "Server port", 6379
