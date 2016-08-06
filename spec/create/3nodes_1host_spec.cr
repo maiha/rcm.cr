@@ -17,15 +17,6 @@ describe Rcm::Create do
       ])
     end
 
-    it "creates 0 masters with masters 0 option" do
-      # This doesn't affect replication stuff, but builds cluster-nodes.
-      create = Rcm::Create.new(nodes.split, masters: 0)
-      create.commands.should eq([
-        meet("192.168.0.1:7002", "192.168.0.1:7001"),
-        meet("192.168.0.1:7003", "192.168.0.1:7001"),
-      ])
-    end
-
     it "creates 1 master and 2 slaves with masters 1 option" do
       commands = Rcm::Create.new(nodes.split, masters: 1).commands
       commands.select(&.is_a?(Rcm::Command::Addslots)).should eq([

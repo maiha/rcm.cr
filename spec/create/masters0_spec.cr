@@ -9,8 +9,10 @@ describe Rcm::Create do
       EOF
 
     it "just meet all together" do
+      # This doesn't affect replication stuff, but builds cluster-nodes.
       commands = Rcm::Create.new(nodes.split, masters: 0).commands
       commands.map(&.class).uniq.should eq([Rcm::Command::Meet])
+      commands.size.should eq 3
     end
   end
 end

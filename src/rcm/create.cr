@@ -51,7 +51,6 @@ class Rcm::Create
 
   private def build_meets
     @addrs.each_with_index do |addr, i|
-      next if addr == @leader
       commands << Rcm::Command::Meet.new(addr, @leader, @pass)
     end
   end

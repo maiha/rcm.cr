@@ -25,6 +25,7 @@ describe Rcm::Create do
       create = Rcm::Create.new(nodes.split)
       create.dryrun(io)
       io.to_s.should eq <<-EOF
+        rcm -h '192.168.0.1' -p 7001 meet '192.168.0.1:7001'
         rcm -h '192.168.0.1' -p 7002 meet '192.168.0.1:7001'
         rcm -h '192.168.0.1' -p 7003 meet '192.168.0.1:7001'
         rcm -h '192.168.0.2' -p 7001 meet '192.168.0.1:7001'
@@ -64,6 +65,7 @@ describe Rcm::Create do
       create = Rcm::Create.new(nodes.split, pass: "secret")
       create.dryrun(io)
       io.to_s.should eq <<-EOF
+        rcm -a 'secret' -h '192.168.0.1' -p 7001 meet '192.168.0.1:7001'
         rcm -a 'secret' -h '192.168.0.1' -p 7002 meet '192.168.0.1:7001'
         rcm -a 'secret' -h '192.168.0.1' -p 7003 meet '192.168.0.1:7001'
         rcm -a 'secret' -h '192.168.0.2' -p 7001 meet '192.168.0.1:7001'
