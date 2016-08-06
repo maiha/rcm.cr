@@ -20,9 +20,9 @@ class Rcm::Main
   option help  : Bool  , "--help", "Output this help and exit", false
   
   usage <<-EOF
-    #{$0} version #{VERSION}
+    rcm version #{VERSION}
 
-    Usage: #{$0} <commands>
+    Usage: rcm <commands>
 
     Options:
 
@@ -43,18 +43,18 @@ class Rcm::Main
       advise (--yes)      Print advises. Execute them when --yes given
 
     Example:
-      #{$0} nodes
-      #{$0} info redis_version
-      #{$0} create 192.168.0.1:7001 192.168.0.2:7001 ... --masters 3
-      #{$0} addslots 0-100            # or "0,1,2", "10000-"
-      #{$0} meet 127.0.0.1:7001       # or shortly "meet :7001"
-      #{$0} replicate 127.0.0.1:7001  # or shortly "replicate :7001"
+      rcm nodes
+      rcm info redis_version
+      rcm create 192.168.0.1:7001 192.168.0.2:7001 ... --masters 3
+      rcm addslots 0-100            # or "0,1,2", "10000-"
+      rcm meet 127.0.0.1:7001       # or shortly "meet :7001"
+      rcm replicate 127.0.0.1:7001  # or shortly "replicate :7001"
     EOF
 
   def run
     args                        # kick parse!
     quit(usage) if help
-    quit("#{$0} #{VERSION}") if version
+    quit("rcm #{VERSION}") if version
 
     op = args.shift { die "command not found!" }
 
@@ -170,7 +170,7 @@ class Rcm::Main
   private def suggest_for_error(err)
     case err.to_s
     when /NOAUTH Authentication required/
-      STDERR.puts "try `-a` option: '#{$0} -a XXX'"
+      STDERR.puts "try `-a` option: 'rcm -a XXX'"
     end
   end
 end
