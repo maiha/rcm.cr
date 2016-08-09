@@ -11,12 +11,13 @@ class Rcm::Create
 
   def initialize(nodes : Array(String), @pass : String? = nil, @wait : Float64 = 1.0, masters : Int32? = nil, @debug : Bool = false)
     raise "nodes not found" if nodes.empty?
+    raise "masters must >= 1" if masters.try(&.< 1)
     @addrs = nodes.map{|s| Addr.parse(s)}
     @leader = @addrs.first
     @master_num = calculate_master_num(masters)
     build_masters
-    build_meets
     build_addslots
+    build_join
     build_replicates
   end
 
@@ -49,10 +50,8 @@ class Rcm::Create
     end
   end
 
-  private def build_meets
-    @addrs.each_with_index do |addr, i|
-      commands << Rcm::Command::Meet.new(addr, @leader, @pass)
-    end
+  private def build_join
+    commands << Rcm::Command::Join.new(@addrs, @pass)
   end
 
   private def build_addslots
@@ -70,8 +69,6 @@ class Rcm::Create
     return if @masters.none?
 
     unbound = @addrs - @masters
-    commands << Rcm::Command::Wait.new(@wait) if unbound.any? && @wait > 0
-    
     unbound.each_with_index do |slave, i|
       master = find_master_for(slave)
       replicate(slave, master)

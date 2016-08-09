@@ -78,6 +78,7 @@ class Rcm::Main
 
     when /^create$/i
       die "create expects <node...> # ex. 'create 192.168.0.1:7001 192.168.0.2:7002'" if args.empty?
+      die "create expects --masters > 0" if masters.try(&.< 0)
       create = Create.new(args, pass: pass, masters: masters)
       if nop
         create.dryrun(STDOUT)

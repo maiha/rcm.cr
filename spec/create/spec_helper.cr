@@ -12,6 +12,10 @@ protected def meet(src, dst, pass = nil)
   Rcm::Command::Meet.new(addr(src), addr(dst), pass)
 end
 
+protected def join(hosts, pass = nil)
+  Rcm::Command::Join.new(hosts.map{|s| addr(s)}, pass)
+end
+
 protected def wait(sec)
   Rcm::Command::Wait.new(sec)
 end
