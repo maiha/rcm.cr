@@ -32,6 +32,7 @@ class Rcm::Main
       info <field>        Print given field from INFO for all nodes
       watch <sec1> <sec2> Monitor counts of cluster nodes
       create <addr1> ...  Create cluster
+      join <addr1> ...    Waiting for the cluster to join
       addslots <slots>    Add slots to the node
       meet <master>       Join the cluster on <master>
       replicate <master>  Configure node as replica of the <master>
@@ -91,10 +92,22 @@ class Rcm::Main
       puts redis.addslots(slot.slots)
       
     when /^meet$/i
-      host = args.shift { die "meet expects <master> # ex. 'meet 127.0.0.1:7001'" }
+      host = args.shift { die "meet expects <base node> # ex. 'meet 127.0.0.1:7001'" }
       addr = Addr.parse(host)
       puts "MEET #{addr.host} #{addr.port}"
       puts redis.meet(addr.host, addr.port.to_s)
+      
+    when /^join$/i
+      addrs = args.map{|host| Addr.parse(host)}
+      base = addrs.first { die "join expects <nodes> # ex. 'join 127.0.0.1:7001 127.0.0.1:7002 ...'" }
+      puts "JOIN #{addrs.size} nodes to #{base}"
+      cons = addrs.map{|a|
+        redis_for(a).tap(&.meet(base.host, base.port.to_s))
+      }
+      while cons.map{|r| signature_for(r)}.uniq.size > 1
+        sleep 1
+      end
+      puts "OK"
       
     when /^replicate$/i
       name = args.shift { die "replicate expects <master>" }
@@ -154,9 +167,16 @@ class Rcm::Main
     @redis ||= Redis.new(host: host, port: port, password: pass)
   end
 
-#  @cluster : Redis::Cluster::Client?
+  private def redis_for(addr : Addr)
+    Redis.new(host: addr.host, port: addr.port, password: pass)
+  end
+
   private def cluster
     @cluster ||= Redis::Cluster.new("#{host}:#{port}", pass)
+  end
+
+  private def signature_for(redis)
+    ClusterInfo.parse(redis.nodes).nodes.map(&.signature).sort.join("|")
   end
   
   macro safe(klass)

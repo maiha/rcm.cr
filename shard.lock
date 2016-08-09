@@ -14,5 +14,5 @@ shards:
 
   redis-cluster:
     github: maiha/redis-cluster.cr
-    version: 0.3.2
+    version: 0.3.3
 
