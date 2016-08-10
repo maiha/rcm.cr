@@ -38,6 +38,7 @@ class Rcm::Main
       replicate <master>  Configure node as replica of the <master>
       failover            Become master with agreement (slave only)
       takeover            Become master without agreement (slave only)
+      slot <key1> <key2>  Print keyslot values of given keys
       get <key>           Get specified data from the cluster
       set <key> <val>     Set specified data to the cluster
       import <tsv file>   Test data import from tsv file
@@ -150,6 +151,16 @@ class Rcm::Main
           end
         else
           Cluster::ShowAdviseBetterReplication.new(replica).show(STDOUT)
+        end
+      end
+
+    when "slot"
+      args.each do |key|
+        slot = Redis::Cluster::Slot.slot(key)
+        if verbose
+          puts "#{key}\t#{slot}"
+        else
+          puts slot
         end
       end
 

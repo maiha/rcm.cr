@@ -4,7 +4,7 @@ version: 0.3.1
 dependencies:
   redis-cluster:
     github: maiha/redis-cluster.cr
-    version: 0.3.3
+    version: 0.3.4
   crt:
     github: maiha/crt.cr
     version: 0.1.1

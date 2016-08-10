@@ -70,6 +70,20 @@ f0da61 [127.0.0.1:7002]  role(master), cnt(8751), days(0)
 
 - NOTICE: This sends `INFO` to all nodes.
 
+### slot : calculate keyslot values
+
+```shell
+% rcm slot foo
+12182
+
+% rcm slot foo bar -v
+foo     12182
+bar     5061
+
+% rcm slot foo "{foo}.bar" -v
+foo     12182
+{foo}.bar       12182
+```
 
 ## Usage (cluster feature)
 
