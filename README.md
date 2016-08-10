@@ -193,10 +193,10 @@ OK
 
 various ways to connect to nodes
 
-- "-h <host>"
-- "-p <port>"
-- "-a <password>"
-- "-u <uri>"
+- `-h <host>`
+- `-p <port>`
+- `-a <password>`
+- `-u <uri>`
 
 ```shell
 % rcm ...                 # "127.0.0.1:6379" (default)
