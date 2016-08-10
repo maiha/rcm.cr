@@ -2,6 +2,7 @@
 
 Redis Cluster Manager in Crystal
 
+- tested on crystal-0.18.7
 - binary download: https://github.com/maiha/rcm.cr/releases
 
 ## Usage (information features)
@@ -186,6 +187,31 @@ OK
 
 ```shell
 % rcm -p 7001 import foo.tsv
+```
+
+## Connecting to nodes
+
+various ways to connect to nodes
+
+- "-h <host>"
+- "-p <port>"
+- "-a <password>"
+- "-u <uri>"
+
+```shell
+% rcm ...                 # "127.0.0.1:6379" (default)
+% rcm -h 192.168.0.1 ...  # "192.168.0.1:6379"
+% rcm -p 7001 ...         # "127.0.0.1:7001"
+% rcm -p 7001 -a xyz ...  # "127.0.0.1:7001" with AUTH "xyz"
+% rcm -u redis://foo ...  # "foo:6379" (strict uri form)
+% rcm -u foo ...          # "foo:6379" (scheme is optional)
+% rcm -u :7001 ...        # "127.0.0.1:7001"
+% rcm -u foo:7001 ...     # "foo:7001"
+% rcm -u xyz@foo:7001 ... # "foo:7001" with AUTH "xyz"
+% rcm -u xyz@foo:7001 ... # "foo:7001" with AUTH "xyz"
+% rcm -u xyz@ ...         # "127.0.0.1:6379" with AUTH "xyz"
+% rcm -u xyz@:7001 ...    # "127.0.0.1:7001" with AUTH "xyz"
+% rcm -u xyz@foo ...      # "foo:6379" with AUTH "xyz"
 ```
 
 ## Installation

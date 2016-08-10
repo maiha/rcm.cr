@@ -8,9 +8,10 @@ class Rcm::Main
 
   VERSION = "0.3.1"
 
-  option host  : String, "-h <hostname>", "Server hostname", "127.0.0.1"
-  option port  : Int32 , "-p <port>", "Server port", 6379
-  option pass  : String?, "-a <password>", "Password to use when connecting to the server", nil
+  option uri   : String?, "-u <uri>", "Give host,port,pass at once by 'pass@host:port'", nil
+  option host  : String?, "-h <hostname>", "Server hostname (override uri)", nil
+  option port  : Int32? , "-p <port>", "Server port (override uri)", nil
+  option pass  : String?, "-a <password>", "Password for authed node", nil
   option yes   : Bool, "--yes", "Accept advise automatically", false
   option nop   : Bool, "-n", "Print the commands that would be executed", false
   option nocrt : Bool, "--nocrt", "Use STDIO rather than experimental CRT", false
@@ -80,7 +81,7 @@ class Rcm::Main
     when /^create$/i
       die "create expects <node...> # ex. 'create 192.168.0.1:7001 192.168.0.2:7002'" if args.empty?
       die "create expects --masters > 0" if masters.try(&.< 0)
-      create = Create.new(args, pass: pass, masters: masters)
+      create = Create.new(args, pass: boot.pass, masters: masters)
       if nop
         create.dryrun(STDOUT)
       else
@@ -94,13 +95,13 @@ class Rcm::Main
       puts redis.addslots(slot.slots)
       
     when /^meet$/i
-      host = args.shift { die "meet expects <base node> # ex. 'meet 127.0.0.1:7001'" }
-      addr = Addr.parse(host)
+      base = args.shift { die "meet expects <base node> # ex. 'meet 127.0.0.1:7001'" }
+      addr = Addr.parse(base)
       puts "MEET #{addr.host} #{addr.port}"
       puts redis.meet(addr.host, addr.port.to_s)
       
     when /^join$/i
-      addrs = args.map{|host| Addr.parse(host)}
+      addrs = args.map{|s| Addr.parse(s)}
       base = addrs.first { die "join expects <nodes> # ex. 'join 127.0.0.1:7001 127.0.0.1:7002 ...'" }
       puts "JOIN #{addrs.size} nodes to #{base}"
       cons = addrs.map{|a|
@@ -175,16 +176,22 @@ class Rcm::Main
     redis.close if @redis
   end
 
+  @boot : Bootstrap?
+  private def boot
+    (@boot ||= Bootstrap.parse(uri.to_s).copy(host: host, port: port, pass: pass)).not_nil!
+  end
+
+  @redis : Redis?
   private def redis
-    @redis ||= Redis.new(host: host, port: port, password: pass)
+    (@redis ||= boot.redis).not_nil!
   end
 
   private def redis_for(addr : Addr)
-    Redis.new(host: addr.host, port: addr.port, password: pass)
+    Redis.new(host: addr.host, port: addr.port, password: boot.pass)
   end
 
   private def cluster
-    @cluster ||= Redis::Cluster.new("#{host}:#{port}", pass)
+    @cluster ||= Redis::Cluster.new("#{boot.host}:#{boot.port}", boot.pass)
   end
 
   private def signature_for(redis)
