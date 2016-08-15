@@ -1,5 +1,5 @@
 SHELL = /bin/bash
-LINK_FLAGS = --link-flags "-static"
+LINK_FLAGS = --link-flags "-static" -D without_openssl
 SRCS = ${wildcard src/bin/*.cr}
 PROGS = $(SRCS:src/bin/%.cr=%)
 

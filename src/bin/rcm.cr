@@ -44,6 +44,7 @@ class Rcm::Main
       set <key> <val>     Set specified data to the cluster
       import <tsv file>   Test data import from tsv file
       advise (--yes)      Print advises. Execute them when --yes given
+      httpd <bind>        Start http rest api
 
     Example:
       rcm nodes
@@ -52,6 +53,7 @@ class Rcm::Main
       rcm addslots 0-100            # or "0,1,2", "10000-"
       rcm meet 127.0.0.1:7001       # or shortly "meet :7001"
       rcm replicate 127.0.0.1:7001  # or shortly "replicate :7001"
+      rcm httpd localhost:8080      # or shortly "httpd :8080"
     EOF
 
   def run
@@ -155,6 +157,11 @@ class Rcm::Main
         end
       end
 
+    when "httpd"
+      listen = args.shift { die "httpd expects <host:port>" }
+      server = Httpd::Server.new(cluster, Addr.parse(listen))
+      server.start
+      
     when "slot"
       args.each do |key|
         slot = Redis::Cluster::Slot.slot(key)

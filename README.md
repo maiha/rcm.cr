@@ -189,6 +189,18 @@ OK
 % rcm -p 7001 import foo.tsv
 ```
 
+### httpd
+
+- provides REST API that accepts "/CMD/args1/arg2/..." for redis
+
+```shell
+% rcm -p 7001 httpd :3000
+% curl 127.0.0.1:3000/SET/hello/world  # same as "SET hello world"
+OK
+% curl 127.0.0.1:3000/GET/hello        # same as "GET hello"
+world
+```
+
 ## Connecting to nodes
 
 various ways to connect to nodes
@@ -242,6 +254,8 @@ see `examples/*.cr`
   - [ ] Rebalance slots
   - [ ] Bulkinsert on import
   - [x] Watch monitoring
+- [ ] Web UI
+  - [x] Command Api
 - [ ] Debug
   - [ ] Scan slots
 
