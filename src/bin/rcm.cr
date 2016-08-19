@@ -158,8 +158,8 @@ class Rcm::Main
       end
 
     when "httpd"
-      listen = args.shift { die "httpd expects <host:port>" }
-      server = Httpd::Server.new(cluster, Addr.parse(listen))
+      listen = args.shift { die "httpd expects <(auth@)host:port>" }
+      server = Httpd::Server.new(cluster, Bootstrap.parse(listen))
       server.start
       
     when "slot"

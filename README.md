@@ -199,6 +199,16 @@ OK
 OK
 % curl 127.0.0.1:3000/GET/hello        # same as "GET hello"
 world
+
+# When redis requires AUTH(xxx), httpd automatically provides basic auth with "redis:xxx".
+% rcm -u xxx@:7001 httpd :3000
+% curl -u redis:xxx 127.0.0.1:3000/INCR/cnt
+1
+
+# The username of basic auth can be overwriten by listen arg like 'foo@'.
+% rcm -u xxx@:7001 httpd admin@127.0.0.1:3000
+% curl -u admin:xxx 127.0.0.1:3000/INCR/cnt
+2
 ```
 
 ## Connecting to nodes
