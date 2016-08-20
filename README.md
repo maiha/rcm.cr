@@ -211,6 +211,15 @@ world
 2
 ```
 
+- output format is one of "txt", "raw", "resp", "json"
+
+```shell
+% curl 127.0.0.1:3000/GET/hello.txt  # => "world\n"
+% curl 127.0.0.1:3000/GET/hello.raw  # => world
+% curl 127.0.0.1:3000/GET/hello.resp # => $5\r\nworld\r\n
+% curl 127.0.0.1:3000/GET/hello.json # => {"get":"world"}
+```
+
 ## Connecting to nodes
 
 various ways to connect to nodes

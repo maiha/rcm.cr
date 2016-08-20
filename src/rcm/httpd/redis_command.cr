@@ -1,10 +1,27 @@
 require "http/server"
 
 module Rcm::Httpd::RedisCommand
-  record CommandFound   , args : Array(String), mime : MediaType
-  record CommandNotFound, name : String
-  record MediaNotFound  , ext  : String
-  record InvalidRequest
+  module Request
+  end
+
+  record CommandFound, args : Array(String), mime : MediaType do
+    include Request
+    def name
+      args.first
+    end
+  end
+
+  record CommandNotFound, name : String do
+    include Request
+  end
+
+  record MediaNotFound, ext  : String do
+    include Request
+  end
+
+  record InvalidRequest do
+    include Request
+  end
 
   def self.parse(req : HTTP::Request)
     case req.path
@@ -32,9 +49,5 @@ module Rcm::Httpd::RedisCommand
     rescue
       return MediaNotFound.new(ext)
     end
-  end
-  
-  def self.format(value : Redis::RedisValue, mime : MediaType)
-    value.to_s
   end
 end
