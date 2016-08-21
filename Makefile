@@ -3,10 +3,12 @@ LINK_FLAGS = --link-flags "-static" -D without_openssl
 SRCS = ${wildcard src/bin/*.cr}
 PROGS = $(SRCS:src/bin/%.cr=%)
 
-.PHONY : all static compile spec clean bin
+.PHONY : all static compile spec clean bin test
 .PHONY : ${PROGS}
 
 all: static
+
+test: spec compile static version
 
 static: bin ${PROGS}
 
@@ -26,3 +28,6 @@ compile:
 
 clean:
 	@rm -rf bin
+
+version:
+	./bin/rcm --version
