@@ -5,6 +5,13 @@ Redis Cluster Manager in Crystal
 - tested on crystal-0.18.7
 - binary download: https://github.com/maiha/rcm.cr/releases
 
+## Installation
+
+```shell
+% make
+% cp bin/rcm ~/bin/
+```
+
 ## Usage (information features)
 
 ### status
@@ -189,7 +196,7 @@ OK
 % rcm -p 7001 import foo.tsv
 ```
 
-### httpd
+## Usage (httpd : provides web interfaces)
 
 - provides REST API that accepts "/CMD/args1/arg2/..." for redis
 
@@ -205,7 +212,7 @@ world
 % curl -u redis:xxx 127.0.0.1:3000/INCR/cnt
 1
 
-# The username of basic auth can be overwriten by listen arg like 'foo@'.
+# The username of basic auth can be overwriten by listen arg like 'admin@'.
 % rcm -u xxx@:7001 httpd admin@127.0.0.1:3000
 % curl -u admin:xxx 127.0.0.1:3000/INCR/cnt
 2
@@ -243,13 +250,6 @@ various ways to connect to nodes
 % rcm -u xyz@ ...         # "127.0.0.1:6379" with AUTH "xyz"
 % rcm -u xyz@:7001 ...    # "127.0.0.1:7001" with AUTH "xyz"
 % rcm -u xyz@foo ...      # "foo:6379" with AUTH "xyz"
-```
-
-## Installation
-
-```shell
-% make
-% cp bin/rcm ~/bin/
 ```
 
 ## Usage (as a crystal library)
