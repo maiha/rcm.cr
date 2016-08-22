@@ -1,6 +1,7 @@
 /bin/
 /doc/
 /libs/
+/shard.lock
 /.crystal/
 /.shards/
 /.crystal-version

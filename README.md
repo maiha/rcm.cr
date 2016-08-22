@@ -8,6 +8,7 @@ Redis Cluster Manager in Crystal
 ## Installation
 
 ```shell
+% crystal deps  # first time only
 % make
 % cp bin/rcm ~/bin/
 ```
