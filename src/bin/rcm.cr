@@ -6,7 +6,7 @@ require "crt"
 class Rcm::Main
   include Options
 
-  VERSION = "0.4.0"
+  VERSION = "0.4.1"
 
   option uri   : String?, "-u <uri>", "Give host,port,pass at once by 'pass@host:port'", nil
   option host  : String?, "-h <hostname>", "Server hostname (override uri)", nil
