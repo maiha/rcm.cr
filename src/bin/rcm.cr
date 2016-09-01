@@ -40,11 +40,10 @@ class Rcm::Main
       failover            Become master with agreement (slave only)
       takeover            Become master without agreement (slave only)
       slot <key1> <key2>  Print keyslot values of given keys
-      get <key>           Get specified data from the cluster
-      set <key> <val>     Set specified data to the cluster
       import <tsv file>   Test data import from tsv file
       advise (--yes)      Print advises. Execute them when --yes given
       httpd <bind>        Start http rest api
+      (default)           Otherwise, delgate to redis as is
 
     Example:
       rcm nodes
@@ -127,16 +126,6 @@ class Rcm::Main
     when /^takeover$/i
       puts redis.takeover
 
-    when /^get$/i
-      key = args.shift { die "get expects <key>" }
-      val = cluster.get(key)
-      puts val.nil? ? "(nil)" : val.inspect
-
-    when /^set$/i
-      key = args.shift { die "set expects <key> <val>" }
-      val = args.shift { die "get expects <key> <val>" }
-      cluster.set(key, val)
-
     when /^import$/i
       name = args.shift { die "import expects <tsv-file>" }
       file = safe{ File.open(name) }
@@ -173,7 +162,10 @@ class Rcm::Main
       end
 
     else
-      die "unknown command: #{op}"
+      # otherwise, delegate to redis as commands
+      cmd = [op] + args
+      val = client.command(cmd)
+      puts val.nil? ? "(nil)" : val.inspect
     end
   rescue err
     STDERR.puts err.to_s.colorize(:red)
@@ -199,6 +191,11 @@ class Rcm::Main
 
   private def cluster
     @cluster ||= Redis::Cluster.new("#{boot.host}:#{boot.port}", boot.pass)
+  end
+
+  # Hybrid client for standard or clustered
+  private def client
+    @client ||= Redis::Client.new(boot.host, boot.port, password: boot.pass)
   end
 
   private def signature_for(redis)

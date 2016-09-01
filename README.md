@@ -3,9 +3,14 @@
 Redis Cluster Manager in Crystal
 
 - tested on crystal-0.18.7
-- binary download: https://github.com/maiha/rcm.cr/releases
 
 ## Installation
+
+#### Static Binary is ready for x86 linux
+
+- https://github.com/maiha/rcm.cr/releases
+
+#### Compile from source
 
 ```shell
 % crystal deps  # first time only
@@ -226,6 +231,21 @@ world
 % curl 127.0.0.1:3000/GET/hello.raw  # => world
 % curl 127.0.0.1:3000/GET/hello.resp # => $5\r\nworld\r\n
 % curl 127.0.0.1:3000/GET/hello.json # => {"get":"world"}
+```
+
+## Usage (redis commands)
+
+- All other args will be passed to redis as is.
+- In this case, standard or clustered redis is automatically guessed.
+
+```shell
+(standard redis is running on 6379)
+% rcm config get maxmemory
+["maxmemory", "10000000"]
+
+(clustered redis is running on 7001,7002,... with AUTH `dev`)
+% rcm -u dev@:7002 config get maxmemory
+["maxmemory", "10000000"]
 ```
 
 ## Connecting to nodes
