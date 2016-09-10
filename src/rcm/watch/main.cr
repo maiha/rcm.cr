@@ -61,16 +61,12 @@ module Rcm::Watch
     end
 
     private def observe_channels
-      receives = [@count_ch, @nodes_ch].map(&.receive_select_action)
       loop {
-        index, value = Channel.select(receives)
-        case index
-        when 0
-          update_count(value.as(Result))
-        when 1
-          update_nodes(value.as(Nodes))
-        else
-          raise "[BUG] observe_channels got unexpected index(#{index})"
+        select
+        when count = @count_ch.receive
+          update_count(count)
+        when nodes = @nodes_ch.receive
+          update_nodes(nodes)
         end
         # sleep 0 # Comment out anyway. I don't know why this is bad
       }
