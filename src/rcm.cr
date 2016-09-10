@@ -1,4 +1,8 @@
+# Dependencies
 require "redis-cluster"
+require "crt"
+
+# Project
 require "./ext/**"
 require "./lib/*"
 require "./rcm/**"

@@ -40,7 +40,7 @@ module Rcm::Watch::Show
 
     getter crt
     
-    def initialize(@crt : Crt::Window = Crt::Window.new)
+    def initialize(@crt : ::Crt::Window = ::Crt::Window.new)
       @lines = [] of Tuple(String, String)
     end
 

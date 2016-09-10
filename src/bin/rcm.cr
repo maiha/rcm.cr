@@ -1,7 +1,6 @@
 require "../rcm"
 require "../options"
 require "colorize"
-require "crt"
 
 class Rcm::Main
   include Options

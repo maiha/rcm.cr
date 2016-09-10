@@ -61,7 +61,7 @@ module Rcm::Watch
     end
 
     private def observe_channels
-      receives = [@count_ch, @nodes_ch].map(&.receive_op)
+      receives = [@count_ch, @nodes_ch].map(&.receive_select_action)
       loop {
         index, value = Channel.select(receives)
         case index

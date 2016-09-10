@@ -2,8 +2,6 @@
 
 Redis Cluster Manager in Crystal
 
-- tested on crystal-0.18.7
-
 ## Installation
 
 #### Static Binary is ready for x86 linux
@@ -12,10 +10,12 @@ Redis Cluster Manager in Crystal
 
 #### Compile from source
 
+- tested on crystal-0.19.1
+
 ```shell
 % crystal deps  # first time only
 % make
-% cp bin/rcm ~/bin/
+% cp bin/rcm /usr/local/bin/
 ```
 
 ## Usage (information features)
