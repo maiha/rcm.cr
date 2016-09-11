@@ -43,16 +43,20 @@ module Rcm::Watch
     end
 
     private def build_nodes_watcher
-      Watcher(Nodes).new(@nodes_ch, new_redis_proc(nodes[0]),
-        ->(redis : Redis) { redis.nodes },
-        ->(e : Exception) { "" })
+      Watcher(Nodes).new(@nodes_ch,
+        factory: new_redis_proc(nodes[0]),
+        command: ->(redis : Redis) { redis.nodes },
+        failure: ->(e : Exception) { "" },
+      )
     end
 
     private def build_watch_watchers
       nodes.map{|n|
-        Watcher(Result).new(@count_ch, new_redis_proc(n),
-          ->(redis : Redis) { Result.new(n, redis.count!) },
-          ->(e : Exception) { Result.new(n, -1_i64) })
+        Watcher(Result).new(@count_ch,
+          factory: new_redis_proc(n),
+          command: ->(redis : Redis) { Result.new(n, redis.count!) },
+          failure: ->(e : Exception) { Result.new(n, -1_i64) },
+        )
       }
     end
 
