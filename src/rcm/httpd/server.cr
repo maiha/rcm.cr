@@ -5,7 +5,7 @@ module Rcm::Httpd
     include BasicAuth
     include Formatable
 
-    def initialize(@client : Client, @listen : Bootstrap)
+    def initialize(@client : ::Redis::Client, @listen : Bootstrap)
       @server = HTTP::Server.new(@listen.host, @listen.port) do |ctx|
         handle(ctx, listen.pass, @client.password)
       end
@@ -26,7 +26,16 @@ module Rcm::Httpd
     end
 
     private def process(ctx : HTTP::Server::Context)
-      process ctx, RedisCommand.parse(ctx.request)
+      case ctx.request.path.count("/")
+      when 0..1
+        process_stats(ctx)
+      else
+        process ctx, RedisCommand.parse(ctx.request)
+      end
+    end
+
+    private def process_stats(ctx)
+      ctx.response.print @client.info
     end
 
     private def process(ctx, req : RedisCommand::Request)

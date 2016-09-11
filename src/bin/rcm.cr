@@ -147,7 +147,7 @@ class Rcm::Main
 
     when "httpd"
       listen = args.shift { die "httpd expects <(auth@)host:port>" }
-      server = Httpd::Server.new(cluster, Bootstrap.parse(listen))
+      server = Httpd::Server.new(client, Bootstrap.parse(listen))
       server.start
       
     when "slot"
@@ -194,7 +194,7 @@ class Rcm::Main
 
   # Hybrid client for standard or clustered
   private def client
-    @client ||= Redis::Client.new(boot.host, boot.port, password: boot.pass)
+    @client ||= ::Redis::Client.new(boot.host, boot.port, password: boot.pass)
   end
 
   private def signature_for(redis)
