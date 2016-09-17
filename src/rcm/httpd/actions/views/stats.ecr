@@ -1,0 +1,12 @@
+<main class="container">
+  <div class="row">
+    <h1>cluster</h1>
+  </div>
+
+  <table>
+    <tr><th>Node</th><th>Memory</th></tr>
+    <%- stats.keys.sort_by(&.to_s).each do |node| stat = stats[node] -%>
+    <tr><td><%= node %></td><td><%= mem_meter(stat) %></td></tr>
+    <%- end -%>
+  </table>
+</main>

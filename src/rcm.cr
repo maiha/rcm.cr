@@ -1,5 +1,9 @@
+# Crystal
+require "http"
+
 # Dependencies
 require "redis-cluster"
+require "kemal"
 require "crt"
 
 # Project
