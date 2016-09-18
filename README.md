@@ -2,6 +2,11 @@
 
 Redis Cluster Manager in Crystal
 
+## Features
+- manage: creates cluster easily and provides many commands
+- monitor: watches nodes periodically on cli
+- httpd: provides http api service to redis
+
 ## Installation
 
 #### Static Binary is ready for x86 linux
@@ -10,10 +15,10 @@ Redis Cluster Manager in Crystal
 
 #### Compile from source
 
-- tested on crystal-0.19.1
+- tested on crystal-0.19.2
 
 ```shell
-% crystal deps  # first time only
+% shards update  # first time only
 % make
 % cp bin/rcm /usr/local/bin/
 ```
@@ -294,8 +299,9 @@ see `examples/*.cr`
   - [ ] Rebalance slots
   - [ ] Bulkinsert on import
   - [x] Watch monitoring
-- [ ] Web UI
+- [x] Web UI
   - [x] Command Api
+  - [x] Cluster Info
 - [ ] Debug
   - [ ] Scan slots
 
