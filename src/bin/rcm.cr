@@ -38,6 +38,7 @@ class Rcm::Main
       replicate <master>  Configure node as replica of the <master>
       failover            Become master with agreement (slave only)
       takeover            Become master without agreement (slave only)
+      become_slave        Become slave by sending failover (master only)
       slot <key1> <key2>  Print keyslot values of given keys
       import <tsv file>   Test data import from tsv file
       advise (--yes)      Print advises. Execute them when --yes given
@@ -124,6 +125,13 @@ class Rcm::Main
 
     when /^takeover$/i
       puts redis.takeover
+
+    when /^become_slave$/i
+      info = ClusterInfo.parse(redis.nodes)
+      master = info.find_node_by!(redis.myid) # use myid for unixsock
+      raise "#{master.addr} is not master" unless master.master?
+      slave = info.slaves_of(master).sort_by(&.addr.to_s).first { raise "no slaves for #{master.addr}" }
+      puts cluster.redis(slave).takeover
 
     when /^import$/i
       name = args.shift { die "import expects <tsv-file>" }

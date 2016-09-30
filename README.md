@@ -138,7 +138,7 @@ foo     12182
 
 ## Usage (replication features)
 
-### become slave
+### become slave (start replication)
 
 - `meet` and `replicate` (ex. make :7004 slaveof :7001)
 
@@ -146,6 +146,19 @@ foo     12182
 % rcm -p 7004 meet 127.0.0.1:7001       # same as "meet :7001" for localhost
 % rcm -p 7004 replicate 127.0.0.1:7001  # same as "replicate :7001" for localhost
 ```
+
+### switch master and slave
+
+- `failover` (slave feature) : becomes master with agreement
+- `takeover` (slave feature) : becomes master without agreement
+- `become_slave` (master feature) : becomes slave by sending `failover` to its first slave
+
+```shell
+% rcm -p 7001 become_slave   # 7001: master -> slave
+% rcm -p 7001 failover       # 7001: slave -> master
+```
+
+- Sequentially applying `become_slave` and `failover` means NOP
 
 ### advise
 
