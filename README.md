@@ -15,7 +15,7 @@ Redis Cluster Manager in Crystal
 
 #### Compile from source
 
-- tested on crystal-0.19.2
+- tested on crystal-0.19.3
 
 ```shell
 % shards update  # first time only
