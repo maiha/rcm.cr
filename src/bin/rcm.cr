@@ -131,7 +131,7 @@ class Rcm::Main
       master = info.find_node_by!(redis.myid) # use myid for unixsock
       raise "#{master.addr} is not master" unless master.master?
       slave = info.slaves_of(master).sort_by(&.addr.to_s).first { raise "no slaves for #{master.addr}" }
-      puts cluster.redis(slave).takeover
+      puts cluster.redis(slave).failover
 
     when /^import$/i
       name = args.shift { die "import expects <tsv-file>" }
