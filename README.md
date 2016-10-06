@@ -25,6 +25,30 @@ Redis Cluster Manager in Crystal
 
 ## Usage (information features)
 
+### schema
+
+- show cluster schema about node dependencies
+
+```shell
+% rcm -p 7000 schema
+[0-3276     ] 192.168.0.1:7001 192.168.0.2:7002 192.168.0.3:7003
+[3277-6553  ] 192.168.0.2:7001 192.168.0.3:7002 192.168.0.4:7003
+[6554-9830  ] 192.168.0.3:7001 192.168.0.4:7002 192.168.0.5:7003
+[9831-13107 ] 192.168.0.4:7001 192.168.0.1:7003 192.168.0.5:7002
+[13108-16383] 192.168.0.5:7001 192.168.0.1:7002 192.168.0.2:7003
+```
+
+- It can be used as continuous test for node dependencies.
+- For example, we can easily alert failover or node down by crontab.
+
+```shell
+% rcm -p 7000 schema > /data/redis-cluster-7000.schema
+```
+
+```crontab
+*/5 * * * * diff /data/redis-cluster-7000.schema $(rcm -p 7000 schema)
+```
+
 ### status
 
 - summarize nodes status in the cluster
@@ -303,6 +327,9 @@ see `examples/*.cr`
   - [x] Slots coverage check
   - [x] detect orphaned master
   - [x] detect orphaned slave
+- [ ] Schema
+  - [x] Dump cluster schema
+  - [ ] Reset node dependencies by schema file
 - [ ] Advise
   - [x] Rebalance nodes
   - [ ] Rebalance slots
