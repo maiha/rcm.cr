@@ -29,3 +29,7 @@ def node_mark(node : Rcm::NodeInfo)
     "S"
   end
 end
+
+def remove_ansi_color(str : String)
+  str.gsub(/\x1B\[[0-9;]*[mK]/, "")
+end

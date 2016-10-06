@@ -42,30 +42,30 @@ module Rcm::Cluster
         else
           "#{label}(unknown status)"
         end
-      info = "of #{master_addr(node)}" if node.slave?
+      info = " of #{master_addr(node)}" if node.slave?
 
       if node.fail? || (counts.fetch(node, 0) == -1)
-        io.puts "#{head}#{body} #{info}".colorize.red
+        io.puts "#{head}#{body}#{info}".colorize.red
       elsif node.disconnected?
         io << head
-        io.puts "#{body} #{info}".colorize.yellow
+        io.puts "#{body}#{info}".colorize.yellow
       elsif orphaned_master
         io << head
-        io.puts "#{body} #{info}".colorize.yellow
+        io.puts "#{body}#{info}".colorize.yellow
       elsif orphaned_slave
-        io.puts "#{head}#{body} #{info}".colorize.yellow
+        io.puts "#{head}#{body}#{info}".colorize.yellow
       elsif node.serving?
         io << head
-        io.puts "#{body} #{info}".colorize.green
+        io.puts "#{body}#{info}".colorize.green
       elsif node.slave?
         io.print head
-        io.puts "#{body} #{info}".colorize.cyan
+        io.puts "#{body}#{info}".colorize.cyan
       elsif node.standalone?
         io << head
-        io.puts "#{body} #{info}"
+        io.puts "#{body}#{info}"
       else
         io << head
-        io.puts "#{body} #{info}".colorize.red
+        io.puts "#{body}#{info}".colorize.red
       end
       shown.add(node)
     end
