@@ -5,7 +5,6 @@ module Rcm::Cluster
     property info, counts
 
     def initialize(@info : ClusterInfo, @counts : Counts, @verbose = false)
-      @alen = nodes.map(&.addr.size).max.as(Int32)
     end
 
     def show(io : IO)
