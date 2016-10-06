@@ -28,6 +28,7 @@ class Rcm::Main
 
     Commands:
       status              Print cluster status
+      schema              Print cluster schema
       nodes (file)        Print nodes info from file or server
       info <field>        Print given field from INFO for all nodes
       watch <sec1> <sec2> Monitor counts of cluster nodes
@@ -65,6 +66,9 @@ class Rcm::Main
     case op
     when /^status$/i
       Cluster::ShowStatus.new(cluster.cluster_info, cluster.counts, verbose: verbose).show(STDOUT)
+
+    when /^schema$/i
+      Cluster::ShowSchema.new(cluster.cluster_info).show(STDOUT)
 
     when /^nodes$/i
       info = ClusterInfo.parse(args.any? ? safe{ ARGF.gets_to_end } : redis.nodes)
