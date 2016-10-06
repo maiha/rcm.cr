@@ -4,7 +4,7 @@ version: 0.5.2
 dependencies:
   redis-cluster:
     github: maiha/redis-cluster.cr
-    version: 0.6.3
+    version: 0.6.4
   kemal:
     # TODO: change to official repo after "without_openssl" is released
     github: maiha/kemal

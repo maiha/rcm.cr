@@ -10,6 +10,7 @@ class Rcm::Main
   option uri   : String?, "-u <uri>", "Give host,port,pass at once by 'pass@host:port'", nil
   option host  : String?, "-h <hostname>", "Server hostname (override uri)", nil
   option port  : Int32? , "-p <port>", "Server port (override uri)", nil
+  option sock  : String?, "-s <socket>", "Server socket (overrides hostname and port)", nil
   option pass  : String?, "-a <password>", "Password for authed node", nil
   option yes   : Bool, "--yes", "Accept advise automatically", false
   option nop   : Bool, "-n", "Print the commands that would be executed", false
@@ -188,7 +189,7 @@ class Rcm::Main
 
   @boot : Bootstrap?
   private def boot
-    (@boot ||= Bootstrap.parse(uri.to_s).copy(host: host, port: port, pass: pass)).not_nil!
+    (@boot ||= Bootstrap.parse(uri.to_s).copy(host: host, port: port, sock: sock, pass: pass)).not_nil!
   end
 
   @redis : Redis?
@@ -200,13 +201,13 @@ class Rcm::Main
     Redis.new(host: addr.host, port: addr.port, password: boot.pass)
   end
 
-  private def cluster
-    @cluster ||= Redis::Cluster.new("#{boot.host}:#{boot.port}", boot.pass)
-  end
-
   # Hybrid client for standard or clustered
   private def client
-    @client ||= ::Redis::Client.new(boot.host, boot.port, password: boot.pass)
+    @client ||= ::Redis::Client.new(boot)
+  end
+
+  private def cluster : ::Redis::Cluster::Client
+    @cluster ||= Redis::Cluster.new(boot)
   end
 
   private def signature_for(redis)
