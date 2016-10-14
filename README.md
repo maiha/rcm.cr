@@ -132,6 +132,7 @@ foo     12182
 
 - create : ADDSLOTS, MEET, REPLICATE
 - join   : just MEET and wait all nodes to join the cluster
+- forget : remove the node from cluster
 
 ### create : create cluster automatically
 
@@ -158,6 +159,21 @@ foo     12182
 
 % rcm -p 7002 meet 127.0.0.1:7001
 % rcm -p 7003 meet 127.0.0.1:7001
+```
+
+### forget : send "CLUSTER FORGET" to all nodes except the given node
+
+For example, assume that a node (port :7004) is broken where `rcm nodes` prints like this.
+
+```
+a830a2 [192.168.0.1:7003](177877)    +slave(*) of 192.168.0.1:7002
+3008b0 [127.0.0.1:0]   (    -1)  standalone master,fail,noaddr(!)
+```
+
+Here, we want to remove the node that was running on port:7004 (sha1: 3008b0...).
+
+```shell
+% rcm -p 7003 forget 3008b0
 ```
 
 ## Usage (replication features)

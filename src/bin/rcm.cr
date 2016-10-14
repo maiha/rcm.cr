@@ -41,6 +41,7 @@ class Rcm::Main
       failover            Become master with agreement (slave only)
       takeover            Become master without agreement (slave only)
       become_slave        Become slave by sending failover (master only)
+      forget <node>       Remove the node from cluster
       slot <key1> <key2>  Print keyslot values of given keys
       import <tsv file>   Test data import from tsv file
       advise (--yes)      Print advises. Execute them when --yes given
@@ -137,6 +138,16 @@ class Rcm::Main
       raise "#{master.addr} is not master" unless master.master?
       slave = info.slaves_of(master).sort_by(&.addr.to_s).first { raise "no slaves for #{master.addr}" }
       puts cluster.redis(slave).failover
+
+    when /^forget$/i
+      name = args.shift { die "replicate expects <node>" }
+      info = ClusterInfo.parse(redis.nodes)
+      sha1 = info.find_node_by!(name).sha1
+      puts "FORGET #{sha1}"
+      info.nodes.each do |n|
+        next if n.sha1 == sha1
+        cluster.redis(n).string_command(["CLUSTER", "FORGET", sha1])
+      end
 
     when /^import$/i
       name = args.shift { die "import expects <tsv-file>" }
