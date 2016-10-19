@@ -1,5 +1,7 @@
 module Rcm::Cluster
   class ShowNodesList
+    include NodesHelper
+
     delegate nodes, master_addr, to: @info
 
     property counts, info
@@ -76,7 +78,7 @@ module Rcm::Cluster
       # first, render serving masters and those slaves
       info.each_serving_masters_with_slaves do |master, slaves|
         show_node(io, master, shown, orphaned_master: slaves.empty?)
-        slaves.each{|slave| show_node(io, slave, shown)}
+        sort_slaves(slaves).each{|slave| show_node(io, slave, shown)}
       end
 
       # then, render orphaned slaves
