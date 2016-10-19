@@ -16,7 +16,6 @@ module Rcm::Httpd
     end
     
     def start
-      puts "Listening on http://#{@listen.host}:#{@listen.port}"
       Kemal.run
     end
   end  

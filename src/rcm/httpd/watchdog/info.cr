@@ -12,7 +12,7 @@ class Rcm::Httpd::Watchdog::Info
 
   def initialize(client : ::Redis::Client, @interval : Time::Span)
     # copy connection for async use
-    @client = ::Redis::Client.new(client.host, client.port, client.password)
+    @client = ::Redis::Client.new(client.bootstrap)
     @client.ping
     @agents = build_agents(@client.cluster)
   end
