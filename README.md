@@ -178,7 +178,7 @@ Here, we want to remove the node that was running on port:7004 (sha1: 3008b0...)
 
 ## Usage (replication features)
 
-### become slave (start replication)
+### start replication
 
 - `meet` and `replicate` (ex. make :7004 slaveof :7001)
 
@@ -189,16 +189,22 @@ Here, we want to remove the node that was running on port:7004 (sha1: 3008b0...)
 
 ### switch master and slave
 
+#### native redis cluster protocol
+
 - `failover` (slave feature) : becomes master with agreement
 - `takeover` (slave feature) : becomes master without agreement
-- `become_slave` (master feature) : becomes slave by sending `failover` to its first slave
+
+#### rcm methods for graceful failover
+
+- `fail` (master feature) : becomes slave and wait a new master is up (linked)
+- `failback` (slave feature) : becomes master and wait data sync is finished
 
 ```shell
-% rcm -p 7001 become_slave   # 7001: master -> slave
-% rcm -p 7001 failover       # 7001: slave -> master
+% rcm -p 7001 fail      # 7001: master -> slave (now we can stop 7001 gracefully)
+% rcm -p 7001 failover  # 7001: slave -> master (now we can stop slaves gracefully)
 ```
 
-- Sequentially applying `become_slave` and `failover` means NOP
+- Sequentially applying `fail` and `failover` means NOP
 
 ### advise
 
@@ -355,6 +361,7 @@ see `examples/*.cr`
   - [ ] Rebalance slots
   - [ ] Bulkinsert on import
   - [x] Watch monitoring
+  - [x] Graceful failover
 - [x] Web UI
   - [x] Command Api
   - [x] Cluster Info

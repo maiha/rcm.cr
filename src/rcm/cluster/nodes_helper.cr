@@ -9,5 +9,13 @@ module Rcm::Cluster
         end
       }
     end
+
+    private def wait_for_condition(timeout, interval)
+      loop do
+        raise "timeout" if Time.now > timeout
+        break if yield == true
+        sleep interval
+      end
+    end
   end
 end

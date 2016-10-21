@@ -4,6 +4,7 @@ require "colorize"
 
 class Rcm::Main
   include Options
+  include Rcm::Cluster::NodesHelper
 
   VERSION = "0.6.2"
 
@@ -16,6 +17,7 @@ class Rcm::Main
   option nop   : Bool, "-n", "Print the commands that would be executed", false
   option nocrt : Bool, "--nocrt", "Use STDIO rather than experimental CRT", false
   option masters : Int32? , "--masters <num>", "[create only] Master num", nil
+  option timeout : Int32, "-t sec", "Timeout sec for operation", 60
   option verbose : Bool, "-v", "Enable verbose output", false
   option version : Bool, "--version", "Print the version and exit", false
   option help  : Bool  , "--help", "Output this help and exit", false
@@ -38,9 +40,10 @@ class Rcm::Main
       addslots <slots>    Add slots to the node
       meet <master>       Join the cluster on <master>
       replicate <master>  Configure node as replica of the <master>
+      fail                Become slave gracefully (master only)
+      failback            Become master gracefully (slave only)
       failover            Become master with agreement (slave only)
       takeover            Become master without agreement (slave only)
-      become_slave        Become slave by sending failover (master only)
       forget <node>       Remove the node from cluster
       slot <key1> <key2>  Print keyslot values of given keys
       import <tsv file>   Test data import from tsv file
@@ -66,6 +69,15 @@ class Rcm::Main
     op = args.shift { die "command not found!" }
 
     case op
+    when /^myid$/i
+      puts redis.myid
+
+    when /^role$/i
+      puts info_replication["role"]?
+
+    when /^replication\.json$/i
+      puts info_replication.to_json
+
     when /^status$/i
       Cluster::ShowStatus.new(cluster.cluster_info, cluster.counts, verbose: verbose).show(STDOUT)
 
@@ -132,12 +144,11 @@ class Rcm::Main
     when /^takeover$/i
       puts redis.takeover
 
-    when /^become_slave$/i
-      info = ClusterInfo.parse(redis.nodes)
-      master = info.find_node_by!(redis.myid) # use myid for unixsock
-      raise "#{master.addr} is not master" unless master.master?
-      slave = info.slaves_of(master).sort_by(&.addr.to_s).first { raise "no slaves for #{master.addr}" }
-      puts cluster.redis(slave).failover
+    when /^fail$/i, /^become_slave$/i
+      do_fail
+
+    when /^failback$/i
+      do_failback
 
     when /^forget$/i
       name = args.shift { die "replicate expects <node>" }
@@ -238,6 +249,97 @@ class Rcm::Main
     when /NOAUTH Authentication required/
       STDERR.puts "try `-a` option: 'rcm -a XXX'"
     end
+  end
+
+  # aka. become_slave
+  private def do_fail
+    info = ClusterInfo.parse(redis.nodes)
+    master = info.find_node_by!(redis.myid) # use myid for unixsock
+
+    started_at = Time.now
+    timeout_at = started_at + timeout.seconds
+
+    if master.master?
+      # 1. send FAILOVER command to its slave
+      slave = sort_slaves(info.slaves_of(master)).first {
+        STDERR.puts "no slaves for #{master.addr}".colorize.yellow
+        exit 0
+      }
+      cluster.redis(slave).failover # => "OK"
+
+      # 2. wait to become slave (timeout=30)
+      logger = Periodical::Logger.new(interval: 3.seconds)
+      wait_for_condition(timeout_at, interval: 1.second) {
+        role = info_replication["role"]?
+        logger.puts "  #{Time.now} role=#{role}"
+        role == "slave"
+      }
+      puts "slave: OK (%.1f sec)" % [logger.took.total_seconds]
+    else
+      # when the node is already slave, just print warning
+      STDERR.puts "slave: #{master.addr} is already slave".colorize.yellow
+    end
+
+    # 3. wait for replication (master is up)
+    logger = Periodical::Logger.new(interval: 3.seconds)
+    wait_for_condition(timeout_at, interval: 1.second) {
+      link = info_replication["master_link_status"]?
+      logger.puts "  #{Time.now} master link=#{link}"
+      link == "up"
+    }
+    puts "master link: OK (%.1f sec)" % [logger.took.total_seconds]
+  end
+
+  private def do_failback
+    started_at = Time.now
+    timeout_at = started_at + timeout.seconds
+
+    if info_replication["role"]? == "slave"
+      # 1. send FAILOVER to me
+      res = redis.failover
+      raise res unless res == "OK"
+
+      # 2. wait to become master (timeout=30)
+      logger = Periodical::Logger.new(interval: 3.seconds)
+      wait_for_condition(timeout_at, interval: 1.second) {
+        role = info_replication["role"]?
+        logger.puts "  #{Time.now} role=#{role}"
+        role == "master"
+      }
+      puts "master: OK (%.1f sec)" % [logger.took.total_seconds]
+    else
+      # when the node is already master, just print warning
+      STDERR.puts "master: already master".colorize.yellow
+    end
+
+    # 3. wait all slaves to be "state=online"
+    logger = Periodical::Logger.new(interval: 3.seconds)
+    wait_for_condition(timeout_at, interval: 1.second) {
+      states = slave_states
+      logger.puts "  debug: #{Time.now} states=#{states.inspect}"
+      states == ["online"]
+    }
+    puts "slave state: OK (%.1f sec)" % [logger.took.total_seconds]
+  end
+
+  private def info_replication
+    redis.info("replication")
+  end
+
+  private def slave_states : Array(String)
+    states = Set(String).new
+
+    info_replication.each do |key, val|
+      # "slave0": "ip=192.168.0.2,port=6002,state=wait_bgsave,offset=0,lag=0",
+      # "slave1": "ip=192.168.0.3,port=6003,state=wait_bgsave,offset=0,lag=0",
+      next if key !~ /^slave/
+      case val
+      when /state=(.*?),/
+        states << $1
+      end
+    end
+
+    return states.to_a
   end
 end
 
