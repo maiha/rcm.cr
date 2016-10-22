@@ -34,7 +34,7 @@ module Rcm::Cluster
       total = dryrun(io, delimiter) { |key, val| @client.redis(key) }
       STDERR.puts ("[OK] check input file: %d entries" % total).colorize.green
 
-      reporter = Periodical.reporter(progress, 3.seconds, ->{total})
+      counter = Periodical.counter(progress, 3.seconds, ->{total})
       regex = /#{delimiter}/
       
       lines = [] of String
@@ -49,7 +49,7 @@ module Rcm::Cluster
           end
         end
         lines.clear
-        reporter.report(i)
+        counter.report(i)
       }
       
       cnt = 0
@@ -61,7 +61,7 @@ module Rcm::Cluster
         end
       end
       flush.call(cnt)
-      reporter.done
+      counter.done
     end
   end
 end
