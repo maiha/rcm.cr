@@ -317,7 +317,7 @@ class Rcm::Main
     wait_for_condition(timeout_at, interval: 1.second) {
       states = slave_states
       logger.puts "  debug: #{Time.now} states=#{states.inspect}"
-      states == ["online"]
+      (states.empty? || states == ["online"])
     }
     puts "slave state: OK (%.1f sec)" % [logger.took.total_seconds]
   end
