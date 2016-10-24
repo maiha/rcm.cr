@@ -196,6 +196,7 @@ Here, we want to remove the node that was running on port:7004 (sha1: 3008b0...)
 
 #### rcm methods for graceful failover
 
+- `wait` : wait for replication to finish
 - `fail` (master feature) : becomes slave and wait a new master is up (linked)
 - `failback` (slave feature) : becomes master and wait data sync is finished
 

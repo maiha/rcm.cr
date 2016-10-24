@@ -44,6 +44,7 @@ class Rcm::Main
       failback            Become master gracefully (slave only)
       failover            Become master with agreement (slave only)
       takeover            Become master without agreement (slave only)
+      wait                Wait for replication to finish
       forget <node>       Remove the node from cluster
       slot <key1> <key2>  Print keyslot values of given keys
       import <tsv file>   Test data import from tsv file
@@ -150,6 +151,9 @@ class Rcm::Main
     when /^failback$/i
       do_failback
 
+    when /^wait$/i
+      do_wait
+
     when /^forget$/i
       name = args.shift { die "replicate expects <node>" }
       info = ClusterInfo.parse(redis.nodes)
@@ -251,6 +255,31 @@ class Rcm::Main
     end
   end
 
+  private def do_wait
+    timeout_at = Time.now + timeout.seconds
+    wait_for_replication(timeout_at, 3.seconds)
+  end
+
+  private def wait_for_replication(timeout_at, interval)
+    logger = Periodical::Logger.new(interval: interval)
+    case info_replication["role"]?
+    when "master"
+      wait_for_condition(timeout_at, interval: 1.second) {
+        states = slave_states
+        logger.puts "  #{Time.now} sync=#{states.inspect}"
+        (states.empty? || states == ["online"])
+      }
+      puts "slave sync: OK (%.1f sec)" % [logger.took.total_seconds]
+    when "slave"
+      wait_for_condition(timeout_at, interval: 1.second) {
+        link = info_replication["master_link_status"]?
+        logger.puts "  #{Time.now} master link=#{link}"
+        link == "up"
+      }
+      puts "master link: OK (%.1f sec)" % [logger.took.total_seconds]
+    end
+  end
+
   # aka. become_slave
   private def do_fail
     info = ClusterInfo.parse(redis.nodes)
@@ -260,6 +289,9 @@ class Rcm::Main
     timeout_at = started_at + timeout.seconds
 
     if master.master?
+      # 0. wait to sync before sending F/O, otherwise it would be timeout
+      wait_for_replication(timeout_at, 3.seconds)
+
       # 1. send FAILOVER command to its slave
       slave = sort_slaves(info.slaves_of(master)).first {
         STDERR.puts "no slaves for #{master.addr}".colorize.yellow
@@ -274,20 +306,14 @@ class Rcm::Main
         logger.puts "  #{Time.now} role=#{role}"
         role == "slave"
       }
-      puts "slave: OK (%.1f sec)" % [logger.took.total_seconds]
+      puts "become slave: OK (%.1f sec)" % [logger.took.total_seconds]
     else
       # when the node is already slave, just print warning
       STDERR.puts "slave: #{master.addr} is already slave".colorize.yellow
     end
 
     # 3. wait for replication (master is up)
-    logger = Periodical::Logger.new(interval: 3.seconds)
-    wait_for_condition(timeout_at, interval: 1.second) {
-      link = info_replication["master_link_status"]?
-      logger.puts "  #{Time.now} master link=#{link}"
-      link == "up"
-    }
-    puts "master link: OK (%.1f sec)" % [logger.took.total_seconds]
+    wait_for_replication(timeout_at, 3.seconds)
   end
 
   private def do_failback
@@ -295,6 +321,9 @@ class Rcm::Main
     timeout_at = started_at + timeout.seconds
 
     if info_replication["role"]? == "slave"
+      # 0. wait to sync before sending F/O, otherwise it would be timeout
+      wait_for_replication(timeout_at, 3.seconds)
+    
       # 1. send FAILOVER to me
       res = redis.failover
       raise res unless res == "OK"
@@ -306,20 +335,14 @@ class Rcm::Main
         logger.puts "  #{Time.now} role=#{role}"
         role == "master"
       }
-      puts "master: OK (%.1f sec)" % [logger.took.total_seconds]
+      puts "become master: OK (%.1f sec)" % [logger.took.total_seconds]
     else
       # when the node is already master, just print warning
       STDERR.puts "master: already master".colorize.yellow
     end
 
     # 3. wait all slaves to be "state=online"
-    logger = Periodical::Logger.new(interval: 3.seconds)
-    wait_for_condition(timeout_at, interval: 1.second) {
-      states = slave_states
-      logger.puts "  debug: #{Time.now} states=#{states.inspect}"
-      (states.empty? || states == ["online"])
-    }
-    puts "slave state: OK (%.1f sec)" % [logger.took.total_seconds]
+    wait_for_replication(timeout_at, 3.seconds)
   end
 
   private def info_replication
