@@ -264,14 +264,14 @@ class Rcm::Main
     logger = Periodical::Logger.new(interval: interval)
     case info_replication["role"]?
     when "master"
-      wait_for_condition(timeout_at, interval: 1.second) {
+      wait_for_condition(timeout_at, interval: 1.second, hint: "timeout: sync with slaves") {
         states = slave_states
         logger.puts "  #{Time.now} sync=#{states.inspect}"
         (states.empty? || states == ["online"])
       }
       puts "slave sync: OK (%.1f sec)" % [logger.took.total_seconds]
     when "slave"
-      wait_for_condition(timeout_at, interval: 1.second) {
+      wait_for_condition(timeout_at, interval: 1.second, hint: "timeout: master link") {
         link = info_replication["master_link_status"]?
         logger.puts "  #{Time.now} master link=#{link}"
         link == "up"
@@ -301,7 +301,7 @@ class Rcm::Main
 
       # 2. wait to become slave (timeout=30)
       logger = Periodical::Logger.new(interval: 3.seconds)
-      wait_for_condition(timeout_at, interval: 1.second) {
+      wait_for_condition(timeout_at, interval: 1.second, hint: "timeout: become slave") {
         role = info_replication["role"]?
         logger.puts "  #{Time.now} role=#{role}"
         role == "slave"
@@ -330,7 +330,7 @@ class Rcm::Main
 
       # 2. wait to become master (timeout=30)
       logger = Periodical::Logger.new(interval: 3.seconds)
-      wait_for_condition(timeout_at, interval: 1.second) {
+      wait_for_condition(timeout_at, interval: 1.second, hint: "timeout: become master") {
         role = info_replication["role"]?
         logger.puts "  #{Time.now} role=#{role}"
         role == "master"
