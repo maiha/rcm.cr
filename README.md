@@ -9,7 +9,7 @@ Redis Cluster Manager in Crystal
 
 ## Installation
 
-#### Static Binary is ready for x86 linux
+#### Static Binary is ready for x86_64 linux
 
 - https://github.com/maiha/rcm.cr/releases
 
