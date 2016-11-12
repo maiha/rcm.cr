@@ -1,9 +1,9 @@
 require "../rcm"
-require "../options"
+require "opts"
 require "colorize"
 
 class Rcm::Main
-  include Options
+  include Opts
   include Rcm::Cluster::NodesHelper
 
   VERSION = "0.6.5"
@@ -22,7 +22,7 @@ class Rcm::Main
   option version : Bool, "--version", "Print the version and exit", false
   option help  : Bool  , "--help", "Output this help and exit", false
   
-  usage <<-EOF
+  USAGE = <<-EOF
     rcm version #{VERSION}
 
     Usage: rcm <commands>
@@ -63,10 +63,6 @@ class Rcm::Main
     EOF
 
   def run
-    args                        # kick parse!
-    quit(usage) if help
-    quit("rcm #{VERSION}") if version
-
     op = args.shift { die "command not found!" }
 
     case op
@@ -366,4 +362,4 @@ class Rcm::Main
   end
 end
 
-Rcm::Main.new.run
+Rcm::Main.run
