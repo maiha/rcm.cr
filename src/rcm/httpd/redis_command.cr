@@ -37,7 +37,7 @@ module Rcm::Httpd::RedisCommand
 
     case req.method
     when "POST", "PUT"
-      ary << req.body.not_nil! if req.body
+      ary << req.body.not_nil!.to_s if req.body
     end
 
     cmd = ary.first { return InvalidRequest.new }

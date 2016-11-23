@@ -30,7 +30,7 @@ module Rcm::Watch
       @nodes_watcher  = build_nodes_watcher
       @noded_counts   = Hash(Redis::Cluster::NodeInfo, Array(Int64)).new
       @show           = crt ? Show::Crt.new : Show::IO.new
-      @time_body      = MemoryIO.new
+      @time_body      = IO::Memory.new
       @lines_shrinked = false
     end
 
@@ -175,7 +175,7 @@ module Rcm::Watch
     private def shrink_time_body
       if @time_body.size > MAX_VAL_SIZE * 2
         buf = (@time_body.to_s)[MAX_VAL_SIZE .. -1]
-        @time_body = MemoryIO.new
+        @time_body = IO::Memory.new
         @time_body << buf
       end
     end

@@ -21,7 +21,7 @@ describe Rcm::Create do
       EOF
 
     it "generates rcm commands" do
-      io = MemoryIO.new
+      io = IO::Memory.new
       create = Rcm::Create.new(nodes.split)
       create.dryrun(io)
       io.to_s.should eq <<-EOF
@@ -46,7 +46,7 @@ describe Rcm::Create do
     end
 
     it "generates rcm commands with auth" do
-      io = MemoryIO.new
+      io = IO::Memory.new
       create = Rcm::Create.new(nodes.split, pass: "secret")
       create.dryrun(io)
       io.to_s.should eq <<-EOF

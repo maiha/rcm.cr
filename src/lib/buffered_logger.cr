@@ -2,7 +2,7 @@ require "logger"
 
 class BufferedLogger < Logger
   def initialize(@color : Bool = true, @prefix : String = "")
-    @buffer = MemoryIO.new
+    @buffer = IO::Memory.new
     @counts = Hash(Logger::Severity, Int32).new { 0 }
     super(@buffer)
     @level = Logger::Severity::DEBUG

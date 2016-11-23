@@ -7,7 +7,7 @@ describe Rcm::Cluster::ShowStatus do
     EOF
 
   it "#show(verbose: true)" do
-    io = MemoryIO.new
+    io = IO::Memory.new
     show = Rcm::Cluster::ShowStatus.new(info, Redis::Cluster::Counts.new, verbose: true)
     show.show(io)
     buf = remove_ansi_color(io.to_s).strip

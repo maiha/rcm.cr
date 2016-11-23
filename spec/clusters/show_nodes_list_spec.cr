@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 private def show(info)
-  io = MemoryIO.new
+  io = IO::Memory.new
   show = Rcm::Cluster::ShowNodesList.new(info, Redis::Cluster::Counts.new)
   show.show(io)
   buf = remove_ansi_color(io.to_s).strip

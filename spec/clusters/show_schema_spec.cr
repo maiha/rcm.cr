@@ -20,7 +20,7 @@ describe Rcm::Cluster::ShowSchema do
     EOF
 
   it "#show" do
-    io = MemoryIO.new
+    io = IO::Memory.new
     show = Rcm::Cluster::ShowSchema.new(info)
     show.show(io)
     buf = remove_ansi_color(io.to_s).strip
