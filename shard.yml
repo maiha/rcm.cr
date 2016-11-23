@@ -7,8 +7,7 @@ dependencies:
     version: 0.6.8
   kemal:
     github: sdogruyol/kemal
-    #version: 0.16.2
-    branch: master # use master until 0.16.2 is released
+    version: 0.17.0
   crt:
     github: maiha/crt.cr
     version: 0.2.0
