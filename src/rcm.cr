@@ -5,6 +5,7 @@ require "http"
 require "redis-cluster"
 require "kemal"
 require "crt"
+require "app"
 
 # Project
 require "./ext/**"

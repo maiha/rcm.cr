@@ -6,7 +6,7 @@ class Rcm::Main
   include Opts
   include Rcm::Cluster::NodesHelper
 
-  VERSION = "0.6.6"
+  VERSION = Shard.version
 
   option uri   : String?, "-u <uri>", "Give host,port,pass at once by 'pass@host:port'", nil
   option host  : String?, "-h <hostname>", "Server hostname (override uri)", nil
