@@ -15,7 +15,7 @@ Redis Cluster Manager in Crystal
 
 #### Compile from source
 
-- tested on crystal-0.19.4, 0.20.0
+- tested on crystal-0.20.1
 
 ```shell
 % shards update  # first time only
@@ -341,6 +341,8 @@ various ways to connect to nodes
 ## Usage (as a crystal library)
 
 see `examples/*.cr`
+
+But, you'd better use `redis-cluster.rb` rather than this for library.
 
 ## TODO
 

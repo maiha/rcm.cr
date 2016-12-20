@@ -8,7 +8,7 @@ PROGS = $(SRCS:src/bin/%.cr=%)
 
 all: static
 
-test: spec compile static version
+test: spec compile static examples version
 
 static: bin ${PROGS}
 
@@ -28,6 +28,12 @@ compile:
 
 clean:
 	@rm -rf bin
+
+.PHONY : examples
+examples:
+	@for x in examples/*.cr ; do\
+	  crystal build "$$x" -o /dev/null ;\
+	done
 
 version:
 	./bin/rcm --version
