@@ -4,16 +4,22 @@ version: 0.7.1
 dependencies:
   redis-cluster:
     github: maiha/redis-cluster.cr
-    version: 0.7.0
+    version: 0.7.2
   kemal:
     github: sdogruyol/kemal
-    version: 0.17.0
+    version: 0.17.4
+  kemal-basic-auth:
+    # TODO: use official after 0.20.4 supported
+    # github: kemalcr/kemal-basic-auth
+    # version: 0.1.0
+    github: maiha/kemal-basic-auth
+    version: 0.1.1
   crt:
     github: maiha/crt.cr
     version: 0.2.0
   app:
     github: maiha/app.cr
-    version: 0.3.0
+    version: 0.3.2
 
 authors:
   - maiha <maiha@wota.jp>

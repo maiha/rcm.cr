@@ -8,7 +8,7 @@ module Rcm::Httpd
       config.add_handler RedisHandler.new(@redis, watch_interval: 1.second)
       pass = @redis.password || @listen.pass
       if pass
-        auth_handler = Kemal::Middleware::HTTPBasicAuth.new("redis", pass)
+        auth_handler = HTTPBasicAuth.new("redis", pass)
         config.add_handler auth_handler
       end
 

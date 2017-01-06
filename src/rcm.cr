@@ -4,6 +4,7 @@ require "http"
 # Dependencies
 require "redis-cluster"
 require "kemal"
+require "kemal-basic-auth"
 require "crt"
 require "app"
 

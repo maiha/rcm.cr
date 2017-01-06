@@ -5,7 +5,8 @@ class ::HTTP::Server::Context
   property! info  : Rcm::Httpd::Watchdog::Info
 end
 
-class Rcm::Httpd::RedisHandler < HTTP::Handler
+class Rcm::Httpd::RedisHandler
+  include HTTP::Handler
   def initialize(@redis : ::Redis::Client, watch_interval : Time::Span)
     @redis.ping
     @info = Rcm::Httpd::Watchdog::Info.new(@redis, watch_interval)
