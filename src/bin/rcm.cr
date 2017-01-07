@@ -50,9 +50,11 @@ class Rcm::Main
       import <tsv file>   Test data import from tsv file
       advise (--yes)      Print advises. Execute them when --yes given
       httpd <bind>        Start http rest api
+      ping                Ping to connected server
       (default)           Otherwise, delgate to redis as is
 
     Example:
+      rcm ping
       rcm nodes
       rcm info redis_version
       rcm create 192.168.0.1:7001 192.168.0.2:7001 ... --masters 3
@@ -194,6 +196,9 @@ class Rcm::Main
           puts slot
         end
       end
+
+    when "ping"
+      puts redis.ping
 
     else
       # otherwise, delegate to redis as commands
