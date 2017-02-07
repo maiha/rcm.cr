@@ -6,8 +6,6 @@ class Rcm::Main
   include Opts
   include Rcm::Cluster::NodesHelper
 
-  VERSION = Shard.version
-
   option uri   : String?, "-u <uri>", "Give host,port,pass at once by 'pass@host:port'", nil
   option host  : String?, "-h <hostname>", "Server hostname (override uri)", nil
   option port  : Int32? , "-p <port>", "Server port (override uri)", nil
@@ -23,7 +21,7 @@ class Rcm::Main
   option help  : Bool  , "--help", "Output this help and exit", false
   
   USAGE = <<-EOF
-    rcm version #{VERSION}
+    rcm version {{version}}
 
     Usage: rcm <commands>
 
@@ -64,10 +62,12 @@ class Rcm::Main
       rcm httpd localhost:8080      # or shortly "httpd :8080"
     EOF
 
+  property! current_op : String?
+  
   def run
-    op = args.shift { die "command not found!" }
+    @current_op = args.shift { die "command not found!" }    
 
-    case op
+    case current_op
     when /^myid$/i
       puts redis.myid
 
@@ -202,16 +202,24 @@ class Rcm::Main
 
     else
       # otherwise, delegate to redis as commands
-      cmd = [op] + args
+      cmd = [current_op] + args
       val = client.command(cmd)
       puts val.nil? ? "(nil)" : val.inspect
     end
-  rescue err
-    STDERR.puts err.to_s.colorize(:red)
-    suggest_for_error(err)
-    exit 1
   ensure
     redis.close if @redis
+  end
+
+  def on_error(err)
+    if cluster_support_disabled_error?(err)
+      op = @current_op || ""
+      STDERR.puts "skip #{op}: not cluster".colorize.yellow
+    else
+      STDERR.puts err.to_s.colorize(:red)
+      suggest_for_error(err)
+      show_backtrace(err) if verbose?
+      exit 1
+    end
   end
 
   @boot : Bootstrap?
@@ -254,6 +262,10 @@ class Rcm::Main
     when /NOAUTH Authentication required/
       STDERR.puts "try `-a` option: 'rcm -a XXX'"
     end
+  end
+
+  private def show_backtrace(err)
+    err.inspect_with_backtrace(STDERR)
   end
 
   private def do_wait
@@ -364,6 +376,10 @@ class Rcm::Main
     end
 
     return states.to_a
+  end
+
+  private def cluster_support_disabled_error?(err : Exception)
+    err.to_s =~ /This instance has cluster support disabled/
   end
 end
 
