@@ -53,6 +53,7 @@ class Rcm::Main
       migrate --to <uri>  Migrate data from this connection to the given cluster
       advise (--yes)      Print advises. Execute them when --yes given
       httpd <bind>        Start http rest api
+      count               Count data size
       ping                Ping to connected server
       (default)           Otherwise, delgate to redis as is
 
@@ -216,6 +217,9 @@ class Rcm::Main
 
     when "ping"
       puts redis.ping
+
+    when "count"
+      puts redis.count
 
     else
       # otherwise, delegate to redis as commands
