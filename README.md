@@ -262,9 +262,23 @@ OK
 ### import
 
 - (experimental) This is too slow deu to step import by one by
+- works with using `SET`
 
 ```shell
 % rcm -p 7001 import foo.tsv
+```
+
+### migrate
+
+- migrate data from given redis server to this cluster
+- options: `--count` for `SCAN`
+- options: `--copy`, `--replace`
+  - see: https://redis.io/commands/migrate
+
+For example, we can migrate from `host1:6379` with `pass1` to new cluseter `cluster-broker1:7001` by following command.
+
+```shell
+% rcm -u pass1@host1:6379 migrate --to cluster-broker1:7001 --replace
 ```
 
 ## Usage (httpd : provides web interfaces)

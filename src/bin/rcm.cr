@@ -16,6 +16,10 @@ class Rcm::Main
   option nocrt : Bool, "--nocrt", "Use STDIO rather than experimental CRT", false
   option masters : Int32? , "--masters <num>", "[create only] Master num", nil
   option timeout : Int32, "-t sec", "Timeout sec for operation", 60
+  option count   : Int32, "--count <num>", "Specify COUNT option for SCAN", 1000
+  option to      : String?, "--to <redis_uri>", "Specify redis server as destination", nil
+  option copy    : Bool, "--copy", "Option for migrate", false
+  option replace : Bool, "--replace", "Option for migrate", false
   option verbose : Bool, "-v", "Enable verbose output", false
   option version : Bool, "--version", "Print the version and exit", false
   option help  : Bool  , "--help", "Output this help and exit", false
@@ -46,6 +50,7 @@ class Rcm::Main
       forget <node>       Remove the node from cluster
       slot <key1> <key2>  Print keyslot values of given keys
       import <tsv file>   Test data import from tsv file
+      migrate --to <uri>  Migrate data from this connection to the given cluster
       advise (--yes)      Print advises. Execute them when --yes given
       httpd <bind>        Start http rest api
       ping                Ping to connected server
@@ -56,10 +61,11 @@ class Rcm::Main
       rcm nodes
       rcm info redis_version
       rcm create 192.168.0.1:7001 192.168.0.2:7001 ... --masters 3
-      rcm addslots 0-100            # or "0,1,2", "10000-"
-      rcm meet 127.0.0.1:7001       # or shortly "meet :7001"
-      rcm replicate 127.0.0.1:7001  # or shortly "replicate :7001"
-      rcm httpd localhost:8080      # or shortly "httpd :8080"
+      rcm addslots 0-100                # or "0,1,2", "10000-"
+      rcm meet 127.0.0.1:7001           # or shortly "meet :7001"
+      rcm replicate 127.0.0.1:7001      # or shortly "replicate :7001"
+      rcm migrate --to cluster_host:6379 --replace
+      rcm httpd localhost:8080          # or shortly "httpd :8080"
     EOF
 
   property! current_op : String?
@@ -166,8 +172,19 @@ class Rcm::Main
       name = args.shift { die "import expects <tsv-file>" }
       file = safe{ File.open(name) }
       step = Cluster::StepImport.new(cluster)
-      step.import(file, delimiter: "\t", progress: true, count: 1000)
+      step.import(file, delimiter: "\t", progress: true, count: count)
       
+    when /^migrate$/i
+      uri = to || die "migrate expects --to <redis_uri>"
+      src = client.standard? || die "The source node should not be a cluster"
+      dst = Redis::Client.boot(uri).cluster? || die "The source node should be a cluster"
+      migrate = Rcm::Tools::Migrate.new(src: src, dst: dst, copy: copy, replace: replace, count: count, timeout_ms: timeout*1000)
+      if nop
+        migrate.dryrun(STDOUT)
+      else
+        migrate.execute
+      end
+
     when /^advise$/i
       replica = Advise::BetterReplication.new(cluster.cluster_info, cluster.counts)
       if replica.advise?
