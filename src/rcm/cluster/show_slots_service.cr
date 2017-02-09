@@ -28,7 +28,7 @@ module Rcm::Cluster
 
     private def show_orphaned_masters(log)
       masters = info.orphaned_masters(counts)
-      if masters.any?
+      if masters.any? && info.slaves.any?
         sample = masters.map(&.addr.to_s).sort.inspect
         log.warn "[WARN] Found #{masters.size} orphaned master(s). #{sample}".colorize.yellow
       end
@@ -58,6 +58,8 @@ module Rcm::Cluster
       log.level = (@verbose ? Logger::DEBUG : Logger::WARN)
       rfs = [] of Int32         # replication factors
 
+      slaves = info.slaves
+      
       info.each_serving_masters_with_slaves do |master, slaves|
         active_slaves = slaves.select{|slave| alive?(slave)}
         rfs << (alive?(master) ? 1 : 0) + active_slaves.size
@@ -75,6 +77,8 @@ module Rcm::Cluster
           if active_slaves.size > 0
             cnt = active_slaves.size
             log.info "[OK] SLOT #{master.slot} is ok with #{cnt} slave(s)"
+          elsif slaves.empty?
+            # NOP
           else
             log.warn "[WARN] SLOT #{master.slot} is served by orphaned master (#{master.addr})"
           end
