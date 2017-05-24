@@ -1,11 +1,27 @@
 # rcm.cr [![Build Status](https://travis-ci.org/maiha/rcm.cr.svg?branch=master)](https://travis-ci.org/maiha/rcm.cr)
 
-Redis Cluster Manager in Crystal
+Redis Cluster Manager
 
 ## Features
 - manage: creates cluster easily and provides many commands
 - monitor: watches nodes periodically on cli
 - httpd: provides http api service to redis
+
+## Why not use redis-trib.rb?
+
+- That has ugly syntax. (why SHA1?)
+- That doesn't support AUTH and manual F/O and ....
+- That depends `ruby` and `redis-cli`.
+
+|                  | redis-trib                                                                   | rcm                                         |
+|------------------|------------------------------------------------------------------------------|---------------------------------------------|
+| Replicate        | redis-cli -p 7004 cluster replicate 34f256608ae6b6881cf1ba551e980308ef06756a | rcm -p 7004 replicate :7001                 |
+| Manual F/O       | N/A                                                                          | rcm -p 7004 failover rcm -p 7001 failback   |
+| Create with AUTH | N/A                                                                          | rcm -a XXX create ...                       |
+| Migrate          | (slow : send N-times commands for N keys)                                    | (bulk : send like 10000 keys in 1 command ) |
+| Portability      | docker run ruby:2.3 ruby redis-trib ...                                      | docker run alpine rcm ...                   |
+
+If you don't mind these points at all, I recommend you to use `redis-trib`.
 
 ## Installation
 
