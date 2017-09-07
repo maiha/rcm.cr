@@ -31,7 +31,7 @@ If you don't mind these points at all, I recommend you to use `redis-trib`.
 
 #### Compile from source
 
-- tested on crystal-0.20.4
+- tested on crystal-0.22.0
 
 ```shell
 % shards update  # first time only
@@ -400,6 +400,15 @@ But, you'd better use `redis-cluster.rb` rather than this for library.
   - [x] Cluster Info
 - [ ] Debug
   - [ ] Scan slots
+
+## Development
+
+- for ubuntu
+
+```shell
+apt-get install libncursesw5-dev
+apt-get install libgpm-dev        # needs only for static link
+```
 
 ## Contributing
 

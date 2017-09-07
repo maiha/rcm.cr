@@ -7,19 +7,21 @@ dependencies:
     version: 0.7.4
   kemal:
     github: sdogruyol/kemal
-    version: 0.17.4
+    version: 0.20.0
   kemal-basic-auth:
     # TODO: use official after 0.20.4 supported
     # github: kemalcr/kemal-basic-auth
     # version: 0.1.0
     github: maiha/kemal-basic-auth
-    version: 0.1.1
+    branch: only
   crt:
     github: maiha/crt.cr
     version: 0.2.0
   app:
     github: maiha/app.cr
     version: 0.3.5
+
+crystal: 0.22.0
 
 authors:
   - maiha <maiha@wota.jp>
