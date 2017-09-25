@@ -3,17 +3,14 @@ LINK_FLAGS = --link-flags "-static" -D without_openssl
 SRCS = ${wildcard src/bin/*.cr}
 PROGS = $(SRCS:src/bin/%.cr=%)
 
-.PHONY : all static compile spec clean bin test
+.PHONY : all static compile spec test
 .PHONY : ${PROGS}
 
 all: static
 
 test: spec compile static examples version
 
-static: bin ${PROGS}
-
-bin:
-	@mkdir -p bin
+static: ${PROGS}
 
 rcm: src/bin/rcm.cr
 	crystal build --release $^ -o bin/$@ ${LINK_FLAGS}
@@ -26,9 +23,6 @@ compile:
 	  crystal build "$$x" -o /dev/null ;\
 	done
 
-clean:
-	@rm -rf bin
-
 .PHONY : examples
 examples:
 	@for x in examples/*.cr ; do\
@@ -37,3 +31,8 @@ examples:
 
 version:
 	./bin/rcm --version
+
+.PHONY : release
+release: bin/rcm
+	@github-release
+	@./bin/release

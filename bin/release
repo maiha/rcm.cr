@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -eu
+
+# custom setting
+bin="bin/rcm"
+
+# created setting
+tag=$(git tag -l | sort -V | tail -1)
+user=$(whoami)
+repo=$(basename `git rev-parse --show-toplevel`)
+body=`sha256sum $bin`
+
+cmd="github-release upload --owner='$user' --repo='$repo' --tag='$tag' --name='$tag' --body='$body' '$bin'"
+
+# env
+: ${GITHUB_TOKEN?"Need to set GITHUB_TOKEN"}
+
+if [[ " ${@} " =~ " publish " ]]
+then
+    echo "# TODO: publish mode"
+    echo $cmd
+else
+    echo "# DRYRUN"
+    echo $cmd
+fi
