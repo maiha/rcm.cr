@@ -368,6 +368,14 @@ various ways to connect to nodes
 % rcm -u xyz@foo ...      # "foo:6379" with AUTH "xyz"
 ```
 
+## Usage (as a replace of redis-cli)
+
+- `--raw` option is available.
+
+```shell
+% rcm --raw get foo > foo.bin
+```
+
 ## Usage (as a crystal library)
 
 see `examples/*.cr`

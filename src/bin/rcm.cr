@@ -18,6 +18,7 @@ class Rcm::Main
   option timeout : Int32, "-t sec", "Timeout sec for operation", 60
   option count   : Int32, "--count <num>", "Specify COUNT option for SCAN", 1000
   option to      : String?, "--to <redis_uri>", "Specify redis server as destination", nil
+  option rawmode : Bool, "--raw", "Option for raw output", false
   option copy    : Bool, "--copy", "Option for migrate", false
   option replace : Bool, "--replace", "Option for migrate", false
   option verbose : Bool, "-v", "Enable verbose output", false
@@ -225,7 +226,11 @@ class Rcm::Main
       # otherwise, delegate to redis as commands
       cmd = [current_op] + args
       val = client.command(cmd)
-      puts val.nil? ? "(nil)" : val.inspect
+      if rawmode
+        print val
+      else
+        puts val.nil? ? "(nil)" : val.inspect
+      end
     end
   ensure
     redis.close if @redis
