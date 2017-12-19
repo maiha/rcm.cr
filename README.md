@@ -7,6 +7,11 @@ Redis Cluster Manager
 - monitor: watches nodes periodically on cli
 - httpd: provides http api service to redis
 
+## Why not use redis-cli?
+
+- BUG: cluster with unixsock causes infinite loop.
+  - https://github.com/antirez/redis/pull/3709
+
 ## Why not use redis-trib.rb?
 
 - That has ugly syntax. (why SHA1?)
@@ -15,8 +20,8 @@ Redis Cluster Manager
 
 |                  | redis-trib                                                                   | rcm                                         |
 |------------------|------------------------------------------------------------------------------|---------------------------------------------|
-| Replicate        | redis-cli -p 7004 cluster replicate 34f256608ae6b6881cf1ba551e980308ef06756a | rcm -p 7004 replicate :7001                 |
-| Manual F/O       | N/A                                                                          | rcm -p 7004 failover rcm -p 7001 failback   |
+| Replicate        | redis-cli -p 7004 cluster replicate 34f256... | rcm -p 7004 replicate :7001                 |
+| Manual F/O       | N/A                                                                          | rcm -p 7004 failover; rcm -p 7001 failback   |
 | Create with AUTH | N/A                                                                          | rcm -a XXX create ...                       |
 | Migrate          | (slow : send N-times commands for N keys)                                    | (bulk : send like 10000 keys in 1 command ) |
 | Portability      | docker run ruby:2.3 ruby redis-trib ...                                      | docker run alpine rcm ...                   |
@@ -31,7 +36,7 @@ If you don't mind these points at all, I recommend you to use `redis-trib`.
 
 #### Compile from source
 
-- tested on crystal-0.22.0
+- tested on crystal-0.24.1
 
 ```shell
 % shards update  # first time only
@@ -380,7 +385,8 @@ various ways to connect to nodes
 
 see `examples/*.cr`
 
-But, you'd better use `redis-cluster.rb` rather than this for library.
+But, you'd better use `redis-cluster.cr` rather than this for library.
+- https://github.com/maiha/redis-cluster.cr
 
 ## TODO
 

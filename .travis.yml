@@ -5,4 +5,4 @@ addons:
     - libgpm-dev
     - libncursesw5-dev
 script:
-  - make test
+  - make ci

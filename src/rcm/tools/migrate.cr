@@ -13,7 +13,7 @@ class Rcm::Tools::Migrate
       io << to_s.gsub(/KEYS (.+)$/) {
         keys = $1.split(/\s+/)
         head = keys[0,3].join(" ")
-        tail = (keys.size > 3) ? " ..." : ""
+        tail = keys.size > 3 ? " ..." : ""
         "(%d) %s%s" % [keys.size, head, tail]
       }
     end

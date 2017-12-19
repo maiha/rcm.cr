@@ -274,6 +274,14 @@ class Rcm::Main
   private def signature_for(redis)
     ClusterInfo.parse(redis.nodes).nodes.map(&.signature).sort.join("|")
   end
+
+  macro expect_error(klass)
+    begin
+      {{yield}}
+    rescue err : {{klass.id}}
+      die err.to_s
+    end
+  end
   
   macro safe(klass)
     expect_error({{klass.id}}) { {{yield}} }
