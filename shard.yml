@@ -4,7 +4,7 @@ version: 0.7.6
 dependencies:
   redis-cluster:
     github: maiha/redis-cluster.cr
-    version: 0.7.7
+    version: ">= 0.8.0"
   kemal:
     github: sdogruyol/kemal
     branch: master
@@ -16,12 +16,10 @@ dependencies:
     branch: only
   crt:
     github: maiha/crt.cr
-    version: 0.2.0
+    version: ">= 0.4.0"
   app:
     github: maiha/app.cr
-    version: ">= 0.4.1"
-
-crystal: 0.24.1
+    version: ">= 0.5.0"
 
 authors:
   - maiha <maiha@wota.jp>

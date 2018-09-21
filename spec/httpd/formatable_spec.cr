@@ -50,7 +50,7 @@ describe Rcm::Httpd::Formatable do
 
     it "Exception" do
       format(Exception.new("some")).should eq("some")
-      format(Redis::Error.new("some")).should eq("RedisError: some")
+      format(Redis::Error.new("some")).should eq("some")
     end
   end
 end

@@ -24,7 +24,7 @@ Redis Cluster Manager
 | Manual F/O       | N/A                                                                          | rcm -p 7004 failover; rcm -p 7001 failback   |
 | Create with AUTH | N/A                                                                          | rcm -a XXX create ...                       |
 | Migrate          | (slow : send N-times commands for N keys)                                    | (bulk : send like 10000 keys in 1 command ) |
-| Portability      | docker run ruby:2.3 ruby redis-trib ...                                      | docker run alpine rcm ...                   |
+| Portability      | docker run ruby:2.3 ruby redis-trib ...                                      | rcm ...                   |
 
 If you don't mind these points at all, I recommend you to use `redis-trib`.
 
@@ -36,7 +36,7 @@ If you don't mind these points at all, I recommend you to use `redis-trib`.
 
 #### Compile from source
 
-- tested on crystal-0.24.1
+- tested on crystal-0.26.1
 
 ```shell
 % shards update  # first time only
