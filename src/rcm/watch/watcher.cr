@@ -1,7 +1,7 @@
 class Rcm::Watch::Watcher(T)
   @redis : Redis?
 
-  def initialize(@ch : Channel::Unbuffered(T), @factory : -> Redis, @command : Proc(Redis, T), @failure : Proc(Exception, T))
+  def initialize(@ch : Channel(T), @factory : -> Redis, @command : Proc(Redis, T), @failure : Proc(Exception, T))
   end
 
   def start(interval)

@@ -1,10 +1,18 @@
 name: rcm
 version: 0.7.6
 
+targets:
+  rcm:
+    main: src/bin/rcm.cr
+  rcm-dev:
+    main: src/bin/rcm.cr
+
 dependencies:
   redis-cluster:
     github: maiha/redis-cluster.cr
     version: ">= 0.8.0"
+  pretty:
+    github: maiha/pretty.cr
   kemal:
     github: sdogruyol/kemal
     branch: master

@@ -191,7 +191,7 @@ class Rcm::Main
       replica = Advise::BetterReplication.new(cluster.cluster_info, cluster.counts)
       if replica.advise?
         if yes
-          puts "#{Time.now}: BetterReplication: #{replica.impact}"
+          puts "#{Pretty.now}: BetterReplication: #{replica.impact}"
           replica.advises.each do |a|
             puts a.cmd
             system(a.cmd)
@@ -303,7 +303,7 @@ class Rcm::Main
   end
 
   private def do_wait
-    timeout_at = Time.now + timeout.seconds
+    timeout_at = Pretty.now + timeout.seconds
     wait_for_replication(timeout_at, 3.seconds)
   end
 
@@ -313,14 +313,14 @@ class Rcm::Main
     when "master"
       wait_for_condition(timeout_at, interval: 1.second, hint: "timeout: sync with slaves") {
         states = slave_states
-        logger.puts "  #{Time.now} sync=#{states.inspect}"
+        logger.puts "  #{Pretty.now} sync=#{states.inspect}"
         (states.empty? || states == ["online"])
       }
       puts "slave sync: OK (%.1f sec)" % [logger.took.total_seconds]
     when "slave"
       wait_for_condition(timeout_at, interval: 1.second, hint: "timeout: master link") {
         link = info_replication["master_link_status"]?
-        logger.puts "  #{Time.now} master link=#{link}"
+        logger.puts "  #{Pretty.now} master link=#{link}"
         link == "up"
       }
       puts "master link: OK (%.1f sec)" % [logger.took.total_seconds]
@@ -332,7 +332,7 @@ class Rcm::Main
     info = ClusterInfo.parse(redis.nodes)
     master = info.find_node_by!(redis.myid) # use myid for unixsock
 
-    started_at = Time.now
+    started_at = Pretty.now
     timeout_at = started_at + timeout.seconds
 
     if master.master?
@@ -350,7 +350,7 @@ class Rcm::Main
       logger = Periodical::Logger.new(interval: 3.seconds)
       wait_for_condition(timeout_at, interval: 1.second, hint: "timeout: become slave") {
         role = info_replication["role"]?
-        logger.puts "  #{Time.now} role=#{role}"
+        logger.puts "  #{Pretty.now} role=#{role}"
         role == "slave"
       }
       puts "become slave: OK (%.1f sec)" % [logger.took.total_seconds]
@@ -364,7 +364,7 @@ class Rcm::Main
   end
 
   private def do_failback
-    started_at = Time.now
+    started_at = Pretty.now
     timeout_at = started_at + timeout.seconds
 
     if info_replication["role"]? == "slave"
@@ -379,7 +379,7 @@ class Rcm::Main
       logger = Periodical::Logger.new(interval: 3.seconds)
       wait_for_condition(timeout_at, interval: 1.second, hint: "timeout: become master") {
         role = info_replication["role"]?
-        logger.puts "  #{Time.now} role=#{role}"
+        logger.puts "  #{Pretty.now} role=#{role}"
         role == "master"
       }
       puts "become master: OK (%.1f sec)" % [logger.took.total_seconds]

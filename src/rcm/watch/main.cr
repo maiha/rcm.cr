@@ -16,8 +16,8 @@ module Rcm::Watch
 
     alias Nodes = String
     
-    @count_ch       : Channel::Unbuffered(Result)
-    @nodes_ch       : Channel::Unbuffered(Nodes)
+    @count_ch       : Channel(Result)
+    @nodes_ch       : Channel(Nodes)
     @count_watchers : Array(Watcher(Result))
     @nodes_watcher  : Watcher(Nodes)
     @noded_counts   : Hash(Redis::Cluster::NodeInfo, Array(Int64))
@@ -99,7 +99,7 @@ module Rcm::Watch
           @show.clear
         end
 
-        @show.head(Time.now.to_s)
+        @show.head(Pretty.now.to_s)
         @show.print("", build_time_body)
         @info.each_nodes do |node|
 #          key = build_key_for(node)
@@ -182,7 +182,7 @@ module Rcm::Watch
 
     private def build_time_body
       # |14:53
-      now = Time.now
+      now = Pretty.now
       case now.second
       when 0
         @time_body << "|"

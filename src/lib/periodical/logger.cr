@@ -1,11 +1,11 @@
 module Periodical
   class Logger
     def initialize(@interval : Time::Span, @io : IO = STDOUT)
-      @started_at = @reported_at = Time.now
+      @started_at = @reported_at = Pretty.now
     end
 
     def puts(msg)
-      now = Time.now
+      now = Pretty.now
       return if now < @reported_at + @interval
       @io.puts msg
       @io.flush
@@ -13,7 +13,7 @@ module Periodical
     end
 
     def took
-      Time.now - @started_at
+      Pretty.now - @started_at
     end
   end
 end

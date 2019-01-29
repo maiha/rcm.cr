@@ -26,14 +26,14 @@ module Periodical
 
   class Counter
     def initialize(@interval : Time::Span, @total : Int32)
-      @started_at = @reported_at = Time.now
+      @started_at = @reported_at = Pretty.now
       @report_count = 0
       @last_count = 0
       raise "#{self.class} expects @total > 0, bot got #{@total}" unless @total > 0
     end
 
     def report(cnt : Int32)
-      now = Time.now
+      now = Pretty.now
       return if now < @reported_at + @interval
       pcent = [cnt * 100.0 / @total, 100.0].min
       time = now.to_s("%H:%M:%S")
@@ -47,7 +47,7 @@ module Periodical
     end
 
     def done
-      now  = Time.now
+      now  = Pretty.now
       took = now - @started_at
       qps  = qps_string(@total, took)
       sec  = took.total_seconds

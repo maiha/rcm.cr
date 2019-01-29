@@ -1,45 +1,63 @@
-SHELL = /bin/bash
-LINK_FLAGS = --link-flags "-static" -D without_openssl
-SRCS = ${wildcard src/bin/*.cr}
-PROGS = $(SRCS:src/bin/%.cr=%)
-CRYSTAL ?= crystal
+SHELL=/bin/bash
+
+all: rcm
+
+######################################################################
+### compiling
+
+# for mounting permissions in docker-compose
+export UID = $(shell id -u)
+export GID = $(shell id -g)
+
+COMPILE_FLAGS=
+BUILD_TARGET=
+
+ON_DOCKER=docker-compose run --rm crystal
+
+.PHONY: build
+build:
+	@$(ON_DOCKER) shards build $(COMPILE_FLAGS) --link-flags "-static" $(BUILD_TARGET) $(O)
+
+.PHONY: rcm
+rcm: BUILD_TARGET=--release rcm
+rcm: build
+
+.PHONY: rcm-dev
+rcm-dev: BUILD_TARGET=rcm-dev
+rcm-dev: build
+
+######################################################################
+### testing
+
+.PHONY: ci
+ci: rcm spec
+
+.PHONY : spec
+spec:
+	@$(ON_DOCKER) crystal spec $(COMPILE_FLAGS) -v --fail-fast
+
+######################################################################
+### github releasing
+
+.PHONY: github-release
+github-release: check-statically-linked
+	@github-release
+	@./bin/github-release
+
+.PHONY: check-statically-linked
+check-statically-linked:
+	@if file bin/rcm | grep statically > /dev/null; then \
+	  : ;\
+	else \
+	  echo "not statically linked" >&2; exit 1; \
+	fi
+
+######################################################################
+### versioning
 
 VERSION=
-CURRENT_VERSION=$(shell git tag -l | sort -V | tail -1)
+CURRENT_VERSION=$(shell git tag -l | sort -V | tail -1 | sed -e 's/^v//')
 GUESSED_VERSION=$(shell git tag -l | sort -V | tail -1 | awk 'BEGIN { FS="." } { $$3++; } { printf "%d.%d.%d", $$1, $$2, $$3 }')
-
-.PHONY : all static compile spec test
-.PHONY : ${PROGS}
-
-all: static
-
-test: spec compile static examples
-
-ci: spec compile examples
-
-static: ${PROGS}
-
-rcm: src/bin/rcm.cr
-	$(CRYSTAL) build --release $^ -o bin/$@ ${LINK_FLAGS}
-
-spec:
-	$(CRYSTAL) spec -v
-
-compile:
-	@for x in src/bin/*.cr ; do\
-	  $(CRYSTAL) build "$$x" -o /dev/null ;\
-	done
-
-.PHONY : examples
-examples:
-	@for x in examples/*.cr ; do\
-	  $(CRYSTAL) build "$$x" -o /dev/null ;\
-	done
-
-.PHONY : release
-release: bin/rcm
-	@github-release
-	@./bin/release
 
 .PHONY : version
 version:
@@ -57,3 +75,4 @@ version:
 .PHONY : bump
 bump:
 	make version VERSION=$(GUESSED_VERSION) -s
+

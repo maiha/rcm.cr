@@ -7,7 +7,7 @@ class Rcm::Httpd::Watchdog::Info
   include RedisStat
 
   property stats   : Hash(Addr, Stat) = Hash(Addr, Stat).new
-  property channel : Channel::Unbuffered(Stat) = Channel::Unbuffered(Stat).new
+  property channel : Channel(Stat) = Channel(Stat).new
   property agents  : Array(Watcher(Stat))
 
   def initialize(client : ::Redis::Client, @interval : Time::Span)
@@ -51,5 +51,5 @@ class Rcm::Httpd::Watchdog::Info
   private def new_redis_proc(client, node : Redis::Cluster::NodeInfo)
     ->() { client.new_redis(node.host, node.port) }
   end
-#        STDERR.puts "#{Time.now}: #{self.class} #{err}".colorize.red
+#        STDERR.puts "#{Pretty.now}: #{self.class} #{err}".colorize.red
 end

@@ -1,0 +1,16 @@
+version: '2'
+services:
+  crystal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: shards build
+    user: "${UID}:${GID}"
+    volumes:
+      - .:/v
+    working_dir: /v
+    depends_on:
+      - redis
+
+  redis:
+    image: redis

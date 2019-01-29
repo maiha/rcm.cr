@@ -3,6 +3,7 @@ require "http"
 
 # Dependencies
 require "redis-cluster"
+require "pretty"
 require "kemal"
 require "kemal-basic-auth"
 require "crt"

@@ -1,8 +1,4 @@
 language: crystal
-addons:
-  apt:
-    packages:
-    - libgpm-dev
-    - libncursesw5-dev
+sudo: false
 script:
   - make ci
