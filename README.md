@@ -36,10 +36,9 @@ If you don't mind these points at all, I recommend you to use `redis-trib`.
 
 #### Compile from source
 
-- tested on crystal-0.26.1
+- tested on crystal-0.34.0
 
 ```shell
-% shards update  # first time only
 % make
 % cp bin/rcm /usr/local/bin/
 ```
