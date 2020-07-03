@@ -1,4 +1,3 @@
-language: crystal
 sudo: false
 script:
   - make ci
